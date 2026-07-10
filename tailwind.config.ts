@@ -2,9 +2,9 @@ import type { Config } from "tailwindcss";
 
 /**
  * Design tokens for Cameroon Catering Service.
- * Palette leans on warm, trustworthy greens (growth, freshness) with a
- * gold accent (celebration, premium) — a nod to the Cameroonian flag and
- * the festive nature of catering.
+ * Palette inspired by the Cameroonian flag colors — deep greens for text and
+ * primary elements, with red and gold accents woven throughout. The flag is
+ * felt through color choices, not literal imagery.
  */
 const config: Config = {
   content: [
@@ -41,9 +41,15 @@ const config: Config = {
           950: "#3d1c09",
         },
         ink: {
-          DEFAULT: "#1a2b23",
-          soft: "#455a4f",
-          faint: "#7c8f85",
+          DEFAULT: "#0d5e47", // Deeper green instead of black
+          soft: "#2d7c68", // Warm green
+          faint: "#6b9e8f", // Lighter green-gray
+        },
+        // Cameroon flag colors, available for accents and highlights
+        flag: {
+          green: "#0a7a5e",
+          red: "#ce1126",
+          gold: "#fcd116",
         },
       },
       fontFamily: {

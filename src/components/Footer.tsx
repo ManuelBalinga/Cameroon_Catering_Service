@@ -43,7 +43,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="mt-20 border-t border-brand-100 bg-brand-950 text-brand-50">
+    <footer className="mt-20 bg-brand-950 text-brand-50">
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2">
