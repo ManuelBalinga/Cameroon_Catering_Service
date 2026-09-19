@@ -64,14 +64,7 @@ to read that file will start by rebuilding something.
 
 ## Decisions only the owner can make
 
-### 1. Supabase or Firebase
-
-This blocks the whole backend phase. Both fit the product; they differ in how
-data is queried and how permissions are expressed. The analysis and a
-recommendation are in [`BACKEND_DECISION.md`](./BACKEND_DECISION.md) — it is a
-decision, not a research task.
-
-### 2. Payment route — aggregator or direct
+### 1. Payment route — aggregator or direct
 
 MTN MoMo and Orange Money collection APIs both require a registered Cameroonian
 business entity, a merchant account and KYC. An aggregator gets to market faster
@@ -82,7 +75,7 @@ This is not primarily an engineering question, and until it is answered the
 integration cannot be tested even if it were written. See
 [`PAYMENTS.md`](./PAYMENTS.md).
 
-### 3. Launch commission rate, and who pays it
+### 2. Launch commission rate, and who pays it
 
 The code defaults to 12%, charged to the caterer, with a 10–15% band. All three
 of "10% to win caterers", "15% because the platform carries the risk" and
@@ -90,7 +83,7 @@ of "10% to win caterers", "15% because the platform carries the risk" and
 pitch entirely. Caterer recruitment cannot start without an answer, because the
 rate is the first question a caterer will ask.
 
-### 4. Launch city and first caterers
+### 3. Launch city and first caterers
 
 A marketplace with no caterers has nothing to show a customer. Douala and
 Yaoundé are the obvious candidates. Whichever is chosen needs real caterers
@@ -98,7 +91,7 @@ signed up and verified before the platform is worth opening — and the eight
 caterers currently in `src/data/caterers.ts` are invented, so none of that work
 has started.
 
-### 5. Product name, domain and legal entity
+### 4. Product name, domain and legal entity
 
 "Cameroon Catering Service" is a working title. The terms and privacy pages say
 in both languages that they are demonstration text and must be replaced by
@@ -108,6 +101,14 @@ more connected than they look.
 
 ## Answered decisions
 
+- **Backend: Supabase** (19 September 2026). The data model was designed
+  relationally and every query the UI needs is a relational query — foreign
+  keys, distinct values, ordered joins and two aggregates. Firestore would have
+  meant translating and denormalising that model, and then maintaining the
+  translation. Phone authentication was Firebase's one real advantage for this
+  market and it is solvable on Supabase with an SMS provider, which is needed
+  for booking notifications anyway. Full reasoning in
+  [`BACKEND_DECISION.md`](./BACKEND_DECISION.md).
 - **Product category.** A booking and quotation marketplace, not food delivery.
   Nothing in the product moves food.
 - **Revenue model.** Booking commission, plus featured listings, Premium

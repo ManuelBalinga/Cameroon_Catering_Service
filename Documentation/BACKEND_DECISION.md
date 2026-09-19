@@ -1,12 +1,10 @@
 # Backend decision — Supabase or Firebase
 
-**Status:** open. This blocks every deliverable in Phase J.
+**Status: decided, 19 September 2026 — Supabase.** Group J is unblocked.
 
-**Recommendation:** Supabase.
-
-The reasoning is below. It is a decision, not a research task — the research is
-done, and either option would work. What follows is why one fits this product
-better than the other.
+The reasoning is kept below, unchanged, because the *why* is the part worth
+having in six months when someone asks whether Firestore would have been easier.
+Either option would have worked; this is why one fits this product better.
 
 ## What the backend has to do
 

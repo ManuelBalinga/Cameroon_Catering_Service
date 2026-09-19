@@ -169,7 +169,7 @@
     quotes, and pay a deposit by Mobile Money. It is a booking and quotation platform,
     not a food-delivery app, and it earns a commission on each completed booking.
   </p>
-  <p class="meta">Status as of <strong>19 September 2026</strong> · Front end complete on seed data · No backend, no auth, no payments · Not deployed</p>
+  <p class="meta">Status as of <strong>19 September 2026</strong> · Front end complete on seed data · Backend chosen (Supabase), not started · No auth, no payments · Not deployed</p>
 </header>
 
 <div class="banner">
@@ -185,6 +185,8 @@
 
   <p><strong>One architecture rule is being broken at scale.</strong> <code>CLAUDE.md</code> requires every user-facing string to go through <code>useI18n().t(key)</code> with EN and FR entries in the dictionary. There are <b>94 inline <code>fr ? "…" : "…"</code> ternaries across 9 files</b> that bypass it entirely, concentrated in the newer pages — <code>/caterers/join</code> alone has 27. The pages still render correctly in both languages, so nothing is visibly broken; what is lost is the single place to change a translation, and the ability to add a third language without touching every file. The dictionary itself remains healthy and at parity, which is why this is In progress rather than Broken.</p>
 
+  <p><strong>Decided 19 September: the backend is Supabase.</strong> The data model was designed relationally, written down relationally, and every query the UI needs is a relational query. That unblocks group J below, and it is why the deliverable list grew from 63 rows to 85 on the same day — the Supabase work, the payment paths that need no provider, and the non-code launch prerequisites are all now tracked instead of implied. <b>A falling percentage here means the list got honest, not that the project went backwards.</b></p>
+
   <p><strong>Payments are the gating decision, not the gating code.</strong> The checkout screen already collects the method, the MoMo number and the event date, and computes the 30% deposit against the package total. What it cannot do is call MTN or Orange, and that is not primarily an engineering problem: collection APIs for both require a registered Cameroonian business entity, a merchant account and KYC. Until that exists, the integration cannot be tested even if it were written. See <code>Documentation/PAYMENTS.md</code>.</p>
 
   <p><strong>No deployment.</strong> <code>vercel.json</code> pins the framework to Next.js and the application is a static-friendly build with only one server-rendered route, so hosting is straightforward. But no deployment has been made or confirmed from here, and there is no environment configuration to make yet, because there are no secrets to configure. The first real deployment should wait until there is a backend for it to talk to, or be published knowingly as a public demo.</p>
@@ -195,50 +197,49 @@
 <h2>Overall progress</h2>
 
 <div class="stats">
-  <div class="stat"><div class="n">45 / 63</div><div class="l">Deliverables built</div></div>
+  <div class="stat"><div class="n">45 / 85</div><div class="l">Deliverables built</div></div>
   <div class="stat"><div class="n">5 / 12</div><div class="l">Acceptance criteria met</div></div>
   <div class="stat"><div class="n">4</div><div class="l">Verified by running it</div></div>
-  <div class="stat"><div class="n">5</div><div class="l">Open decisions for the owner</div></div>
+  <div class="stat"><div class="n">4</div><div class="l">Open decisions</div></div>
 </div>
 
 <div class="card">
-  <div class="progress-shell" role="img" aria-label="45 of 63 deliverables built, 6 in progress, 11 not started, 1 waiting on a decision">
-    <span style="width:71.43%;background:var(--built-dot)"></span>
-    <span style="width:9.52%;background:var(--progress-dot)"></span>
-    <span style="width:17.46%;background:var(--todo-dot)"></span>
-    <span style="width:1.59%;background:var(--blocked-dot)"></span>
+  <div class="progress-shell" role="img" aria-label="45 of 85 deliverables built, 6 in progress, 30 not started, 4 waiting on a decision">
+    <span style="width:52.94%;background:var(--built-dot)"></span>
+    <span style="width:7.06%;background:var(--progress-dot)"></span>
+    <span style="width:35.29%;background:var(--todo-dot)"></span>
+    <span style="width:4.71%;background:var(--blocked-dot)"></span>
   </div>
   <div class="progress-legend">
     <span><b>45</b> Built</span>
     <span><b>6</b> In progress</span>
-    <span><b>11</b> Not started</span>
-    <span><b>1</b> Needs a decision</span>
-    <span><b>63</b> total tracked deliverables</span>
+    <span><b>30</b> Not started</span>
+    <span><b>4</b> Needs a decision</span>
+    <span><b>85</b> total tracked deliverables</span>
   </div>
   <p style="margin:12px 0 0; font-size:13.5px; color:var(--text-muted)">
-    <b>Read that 71% carefully.</b> It counts deliverables, not value, and the
-    deliverables are not the same size. The 45 built items are the whole visible
-    product — every page, every component, the design system, the bilingual layer and
-    the money arithmetic. Among the 12 that are not built sit four rows that read
-    <em>database schema</em>, <em>real authentication</em>, <em>payment capture</em>
-    and <em>replace the seed layer with queries</em>. Those four are most of the
-    remaining engineering effort and all of the remaining risk, and on this bar they
-    are four segments the same width as a 404 page. A progress bar cannot show that,
-    so this paragraph does.
+    <b>The denominator moved on 19 September, from 63 to 85.</b> Nothing regressed and
+    nothing was built that day; the list simply stopped ending where the front end ends.
+    Twenty-one deliverables were added — the Supabase work now that the backend is chosen,
+    the payment paths that do not need a provider, the housekeeping the codebase is owed,
+    and a new group L for the things that are not code at all: a business entity, a
+    merchant account, real caterers, drafted terms. The ratio fell from 71% to 53% because
+    the measurement got honest, not because the work got worse.
   </p>
   <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
-    The honest summary is that the front half of the product is finished and the back
-    half has not started. That is a reasonable place to be — the screens settle what
-    the database has to store, and <code>src/lib/types.ts</code> was written as that
-    schema in advance — but it means the next phase is not more building of the same
-    kind. It is a different kind of work, with credentials, a hosting bill and a
-    legal entity attached.
+    <b>Group L is the part no amount of engineering shortens.</b> Eleven rows, none of
+    them a pull request. A registered business gates the merchant account, which gates
+    payment capture, which gates the revenue model — and that sequence runs on a legal
+    timeline, not a development one. It is on this list precisely because leaving it off
+    would make the chart look better and the plan worse.
   </p>
   <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
-    <b>The denominator is deliberately unflattering.</b> Backend, auth, payments,
-    tests and lint are counted as tracked deliverables rather than left off the list,
-    so the ratio reflects the distance to a product people can actually book through
-    — not the distance to a finished prototype, which is already covered.
+    <b>The 45 built items remain the whole visible product</b> — every page, every
+    component, the design system, the bilingual layer and the money arithmetic. What the
+    wider denominator shows is that the visible product was never the hard half. The
+    screens have settled what the database must store, and <code>src/lib/types.ts</code>
+    was written as that schema in advance, so group J is well specified. It is simply not
+    started.
   </p>
 </div>
 
@@ -404,6 +405,7 @@ that shows a number.</p>
     <tr><td class="item">Footer</td><td class="status"><span class="pill built">Built</span></td><td class="note">Carries a visible demo badge, which is correct while the data is invented.</td></tr>
     <tr><td class="item">Dependency-free placeholder art</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>FoodArt.tsx</code> — CSS gradient plus cuisine emoji, seeded by <code>brandHue</code> so each caterer's art is stable across renders. No CDN, no image budget.</td></tr>
     <tr><td class="item">404 page</td><td class="status"><span class="pill built">Built</span></td><td class="note">Bilingual, with a route back into browse.</td></tr>
+    <tr><td class="item">Loading and error states</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Every page renders instantly from an in-memory array, so nothing currently needs a spinner. That stops being true at the first network call. App Router <code>loading.tsx</code> and <code>error.tsx</code> boundaries belong in place <em>before</em> the data layer moves, not after.</td></tr>
 
     <tr class="group-head"><td colspan="3">B — Domain model and seed data</td></tr>
     <tr><td class="item">Domain types</td><td class="status"><span class="pill built">Built</span></td><td class="note">170 lines mirroring eleven eventual tables. Single source of truth for UI, seed data and future queries.</td></tr>
@@ -422,6 +424,7 @@ that shows a number.</p>
     <tr><td class="item">Caterer profile</td><td class="status"><span class="pill built">Built</span></td><td class="note">About, cuisines, packages, menu, gallery, reviews, availability, WhatsApp contact.</td></tr>
     <tr><td class="item">Availability calendar</td><td class="status"><span class="pill built">Built</span></td><td class="note">Renders <code>bookedDates</code> as unavailable. Read-only — a caterer cannot yet block a date from the product.</td></tr>
     <tr><td class="item">Packages and menu display</td><td class="status"><span class="pill built">Built</span></td><td class="note">Per-guest pricing at the 20 / 50 / 100 / 200 bundle sizes, with highlights and a service-included flag.</td></tr>
+    <tr><td class="item">Prerendered caterer profiles</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>/caterers/[id]</code> is the only route server-rendered on demand. <code>generateStaticParams</code> prerenders every profile instead, which is the difference between a fast page and a round trip on a slow connection.</td></tr>
 
     <tr class="group-head"><td colspan="3">D — Quote → offer → booking</td></tr>
     <tr><td class="item">Quote request form</td><td class="status"><span class="pill built">Built</span></td><td class="note">Event type, date, city, guests, cuisine, budget, add-ons, special requests.</td></tr>
@@ -430,7 +433,9 @@ that shows a number.</p>
     <tr><td class="item">Compare offers</td><td class="status"><span class="pill built">Built</span></td><td class="note">Simulates the replies a quote request would attract, with an indicative total per caterer that respects the stated budget when it falls inside that caterer's range, and falls back to any caterer who can handle the headcount so the page is never empty.</td></tr>
     <tr><td class="item">Checkout — event and payment method</td><td class="status"><span class="pill built">Built</span></td><td class="note">MTN MoMo, Orange Money, bank transfer and cash, each with the right follow-up field or warning. Cash is explicitly discouraged in the UI.</td></tr>
     <tr><td class="item">Deposit, balance and commission arithmetic</td><td class="status"><span class="pill built">Built</span></td><td class="note">30% deposit rounded to 50 FCFA, balance shown, commission applied at 12%. Pure functions, no tests.</td></tr>
-    <tr><td class="item">Payment capture</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">"Pay deposit" sets a boolean and shows a generated reference of the form <code>CCS-1234</code>. No provider is contacted. Blocked on a merchant account before it is blocked on code — see <code>Documentation/PAYMENTS.md</code>.</td></tr>
+    <tr><td class="item">Payment capture</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">"Pay deposit" sets a boolean and shows a generated reference of the form <code>CCS-1234</code>. No provider is contacted, and the success screen appears on the button press rather than on a webhook — which in a real integration would confirm bookings nobody paid for. See <code>Documentation/PAYMENTS.md</code>.</td></tr>
+    <tr><td class="item">Durable booking references</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>CCS-</code> plus four random digits collides at roughly one in ten thousand and is generated in the browser. A reference has to be created and stored before any provider is called, so that a webhook naming an unknown reference is an error rather than a guess.</td></tr>
+    <tr><td class="item">Bank transfer reference flow</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Needs no payment provider at all, and it is what a 500-guest wedding will actually use — the deposit alone exceeds normal Mobile Money wallet limits. Show the platform's bank details with the booking reference, mark the booking awaiting transfer, confirm against a statement. Checkout already promises details that do not exist.</td></tr>
 
     <tr class="group-head"><td colspan="3">E — Accounts and dashboards</td></tr>
     <tr><td class="item">Login page</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Role picker routes to the matching dashboard. Any credentials are accepted and the page says so. Honest as a demo; not a login.</td></tr>
@@ -466,19 +471,39 @@ that shows a number.</p>
     <tr><td class="item">FCFA formatting</td><td class="status"><span class="pill built">Built</span></td><td class="note">Full and compact forms, locale-grouped, whole numbers only.</td></tr>
     <tr><td class="item">Commission and deposit constants</td><td class="status"><span class="pill built">Built</span></td><td class="note">Band, default and deposit rate in one module, consumed everywhere.</td></tr>
     <tr><td class="item">Locale-aware dates</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>fr-FR</code> and <code>en-GB</code> formatting — day-month-year in both, which is what Cameroon expects.</td></tr>
+    <tr><td class="item">Subscription and featured prices in <code>src/lib</code></td><td class="status"><span class="pill todo">Not started</span></td><td class="note">15,000 FCFA a month and 10,000 FCFA for seven days are written into the caterer dashboard rather than into the money module. They are the only prices in the product that escape that rule, and they will be changed in one place and not the other.</td></tr>
 
-    <tr class="group-head"><td colspan="3">J — Backend, persistence and delivery</td></tr>
-    <tr><td class="item">Database schema</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">Designed in <code>src/lib/types.ts</code>, not created anywhere. Blocked on the Supabase / Firebase choice — <code>Documentation/BACKEND_DECISION.md</code>.</td></tr>
-    <tr><td class="item">Replace the seed layer with queries</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The seam is clean and the helper signatures are already the right shape, so this is mechanical once the database exists.</td></tr>
-    <tr><td class="item">Photo storage and upload</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Placeholder art is good enough to demonstrate and not good enough to sell with. Needs a bucket, an upload UI and a size budget.</td></tr>
-    <tr><td class="item">Notifications</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">A quote request nobody is told about is not a quote request. WhatsApp Business API or SMS, and it is arguably more urgent than photographs.</td></tr>
+    <tr class="group-head"><td colspan="3">J — Backend and persistence <span style="font-weight:400;opacity:.7">(Supabase, decided 19 September)</span></td></tr>
+    <tr><td class="item">Supabase projects, development and production</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Two from the first day. Separating them later is worse than the ten minutes it costs now, and the policy suite creates and deletes throwaway rows, so it must never point at production.</td></tr>
+    <tr><td class="item">Database schema as migrations</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Eleven tables generated from <code>src/lib/types.ts</code>, which was written as this schema in advance. Money columns are integers in FCFA — there are no centimes and floating-point money is a bug waiting to be written.</td></tr>
+    <tr><td class="item">Row Level Security policies</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The seven rules in <code>Documentation/ROLE_MODEL.md</code>, expressed in the database rather than in React. A caterer seeing another caterer's revenue is the worst leak this product can have, and a filter in a component is one forgotten condition away from it.</td></tr>
+    <tr><td class="item">Client layer and environment configuration</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Browser and server clients, generated row types, and an <code>.env.example</code> listing names and never values. The service-role key bypasses every policy and must never carry a <code>NEXT_PUBLIC_</code> prefix.</td></tr>
+    <tr><td class="item">Seed script</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Loads <code>src/data/*</code> into a fresh project so the UI has something to render on day one, and so the schema is exercised by real rows before any real ones exist.</td></tr>
+    <tr><td class="item">Migrations applied to the development project</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The step that turns written SQL into a verified schema. Nothing in this group can be called Working until this has happened and the policies have been tested against it.</td></tr>
+    <tr><td class="item">Replace the seed layer with queries</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Every page reads through the exported helpers in <code>src/data</code>, so this is mechanical if the seam is as clean as it looks. If the UI has to change, the seam was not clean — which is worth finding out early.</td></tr>
+    <tr><td class="item">Photo storage and upload</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Placeholder art is good enough to demonstrate and not good enough to sell with. Nobody chooses a caterer without seeing the food.</td></tr>
+    <tr><td class="item">Notifications</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">A quote request nobody is told about is not a quote request. WhatsApp Business API or SMS, not email — and arguably more urgent than photographs.</td></tr>
 
     <tr class="group-head"><td colspan="3">K — Quality and release engineering</td></tr>
     <tr><td class="item">Production build</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>npm run build</code> succeeds on Next.js 14.2.15: 18 route entries — 17 pages plus the 404 — of which 17 prerender as static content and one (<code>/caterers/[id]</code>) is server-rendered on demand. Next reports 19 static pages generated. 87.1 kB shared JS; the heaviest route is the home page at 114 kB first load — a defensible budget for a mobile-first product on a slow connection.</span></td></tr>
     <tr><td class="item">Typecheck</td><td class="status"><span class="pill built">Built</span></td><td class="note">Runs as part of the build and standalone. Clean.</td></tr>
     <tr><td class="item">Working lint setup</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><span style="font-size:12.5px;color:var(--progress-fg)"><b>Verified broken 19 September.</b> No ESLint configuration file and no ESLint dependency exist. <code>npm run lint</code> enters <code>next lint</code>'s interactive setup prompt and lints nothing. Documented as a working command in both <code>README.md</code> and <code>CLAUDE.md</code>.</span></td></tr>
     <tr><td class="item">Automated tests</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">No test runner, no test files, no coverage. The commission and deposit functions are the obvious first target and the cheapest.</td></tr>
+    <tr><td class="item">Project documentation matches the code</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>CLAUDE.md</code> lists twelve routes and the 404 where there are seventeen, and two of its TODO items describe screens that shipped in <code>ed3827d</code>. The next person or assistant to read it will start by rebuilding something that already exists.</td></tr>
     <tr><td class="item">Deployment</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>vercel.json</code> pins the framework. No deployment has been made or confirmed. See <code>Documentation/DEPLOYMENT.md</code>.</td></tr>
+
+    <tr class="group-head"><td colspan="3">L — Launch prerequisites</td></tr>
+    <tr><td class="item">Launch commission rate fixed</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">The code defaults to 12% charged to the caterer, inside a 10&ndash;15% band. It is the first question any caterer will ask, so recruitment cannot begin without an answer.</td></tr>
+    <tr><td class="item">Payment route chosen</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">Aggregator or direct MTN and Orange integration. Aggregator is faster to launch and takes a percentage on top of the platform's own commission; direct is cheaper per booking and slower to start. Volume is what makes direct worth its overhead, and there is none yet.</td></tr>
+    <tr><td class="item">Launch city chosen</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">Douala or Yaoundé. It decides who gets recruited and which cities the seed cities become.</td></tr>
+    <tr><td class="item">Product name, domain and legal entity</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">"Cameroon Catering Service" is a working title. The legal entity is also a precondition for the merchant account below, so these are more connected than they look.</td></tr>
+    <tr><td class="item">Registered business entity</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The longest pole on the project. It gates the merchant account, which gates payment capture, which gates the revenue model. No amount of engineering shortens it.</td></tr>
+    <tr><td class="item">Merchant account or aggregator agreement</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Both MTN and Orange gate collection APIs behind a registered business, KYC and a signed commercial agreement with negotiated pricing. Sandbox credentials are enough to write the integration and not enough to prove money arrives.</td></tr>
+    <tr><td class="item">Platform bank account</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Needed for the bank transfer flow, which is the one payment path that does not wait on a merchant account.</td></tr>
+    <tr><td class="item">Caterers recruited and verified</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The eight in <code>src/data/caterers.ts</code> are invented. A marketplace with no caterers has nothing to show a customer, and this is the work that cannot be automated at all.</td></tr>
+    <tr><td class="item">Real photographs and menus</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Collected from those caterers. The storage bucket is the easy half of this deliverable.</td></tr>
+    <tr><td class="item">Professionally drafted terms and privacy</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The current pages say in both languages that they are demonstration text and must be replaced before launch. They mean it.</td></tr>
+    <tr><td class="item">Notification channel account</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">WhatsApp Business API or an SMS provider. The engineering is small; the account, the sender identity and the approval are not.</td></tr>
 
   </tbody>
 </table>
@@ -509,17 +534,21 @@ book a real caterer. They are written as outcomes a person can check, not as fea
 </table>
 </div>
 
-<h2>9 · Open decisions for the owner</h2>
+<h2>9 · Open decisions</h2>
 
-<p class="lead">Five questions that engineering cannot answer for itself. Each one blocks
+<p class="lead">Four questions that engineering cannot answer for itself. Each one blocks
 work that is otherwise ready to start. The detail is in
 <code>Documentation/OPEN_REQUESTS.md</code>.</p>
+
+<p class="lead"><b>Answered 19 September: the backend is Supabase.</b> The data model was
+designed relationally and every query the UI needs is a relational query — foreign keys,
+distinct values, ordered joins and two aggregates. The reasoning is in
+<code>Documentation/BACKEND_DECISION.md</code>. This unblocks the whole of group J.</p>
 
 <div class="table-scroll">
 <table>
   <thead><tr><th>Decision</th><th>What it blocks</th></tr></thead>
   <tbody>
-    <tr><td class="item">Supabase or Firebase</td><td class="note">The entire backend phase. Both fit; they differ in how the data is queried and how permissions are expressed. A recommendation with reasoning is written up and waiting.</td></tr>
     <tr><td class="item">Payment route — aggregator or direct</td><td class="note">Deposit collection, and with it the revenue model. A direct MTN and Orange integration is cheaper per transaction and requires a registered business, a merchant account and KYC. An aggregator is faster to launch and takes a cut of a cut.</td></tr>
     <tr><td class="item">Launch commission rate, and who pays it</td><td class="note">Caterer recruitment and every price shown on the platform. The code defaults to 12% charged to the caterer; 10%, 15%, or splitting it with the customer are all supported by the constants but change the pitch entirely.</td></tr>
     <tr><td class="item">Launch city and first caterers</td><td class="note">A marketplace with no caterers has nothing to show. Douala and Yaoundé are the obvious candidates; whichever is chosen needs real caterers signed up before the platform is worth opening to customers.</td></tr>
