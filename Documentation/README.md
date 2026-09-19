@@ -11,7 +11,8 @@ Read them in this order.
 | [`../PROJECT_STATUS.html`](../PROJECT_STATUS.html) | Every deliverable and whether it is built, and what "built" does and does not mean here. Start here. |
 | [`PHASE_COMPLETION_2026-09-19.md`](./PHASE_COMPLETION_2026-09-19.md) | Phase-by-phase report: what is done, what is not, and why. |
 | [`OPEN_REQUESTS.md`](./OPEN_REQUESTS.md) | What remains unverified, and the five decisions only the owner can make. |
-| [`BACKEND_DECISION.md`](./BACKEND_DECISION.md) | Supabase vs Firebase, with a recommendation. Blocks the whole backend phase. |
+| [`BACKEND_DECISION.md`](./BACKEND_DECISION.md) | Why Supabase, decided 19 September. |
+| [`DATABASE.md`](./DATABASE.md) | The schema, the policies, how to rehearse them locally, and how to apply them for the first time. |
 | [`PAYMENTS.md`](./PAYMENTS.md) | How MTN MoMo and Orange Money collection actually works, and why this is a business blocker before it is an engineering one. |
 | [`ROLE_MODEL.md`](./ROLE_MODEL.md) | Customer, caterer, admin — what each may do, and what the database must enforce rather than trust the UI to enforce. |
 | [`DEPLOYMENT.md`](./DEPLOYMENT.md) | How to run it, how to deploy it, and what to configure once a backend exists. |

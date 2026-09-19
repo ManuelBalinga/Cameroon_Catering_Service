@@ -7,60 +7,56 @@ in the application lives in React component state and is gone on refresh.
 This file tracks the work that is unverified, and the decisions that only the
 project owner can make. It should shrink over time.
 
+## Done since this file was written (19 September)
+
+- **Lint works.** `eslint` and `eslint-config-next` added; the first pass over
+  5,700 previously unlinted lines came back clean.
+- **The money has assertions.** 20 Vitest tests covering FCFA formatting,
+  deposit rounding, commission, the 10–15% band, and EN/FR dictionary parity.
+  Writing them found the deposit rounding living inside the checkout component;
+  it moved to `src/lib/format.ts`.
+- **Every user-facing string is in the dictionary.** All 94 inline ternaries
+  gone; 325 keys per language, still at parity, now guarded by a test.
+- **`CLAUDE.md` matches the code.** All seventeen routes listed, and the TODO
+  list split into "built but simulated" and "not started".
+- **The Supabase schema exists and has been rehearsed.** Seven migrations,
+  thirteen tables, 31 policies, a generated seed, and 53 permission assertions
+  passing against a local PostgreSQL 16. See [`DATABASE.md`](./DATABASE.md).
+
 ## Verification still required
 
-None of the items below needs a decision first. They are unblocked and they are
-cheap.
+### 0. Apply the migrations to a hosted development project
 
-### 0. Make `npm run lint` work
+This is the gate everything else waits behind. The rehearsal proves the SQL,
+the constraints, the triggers and the policy logic on a real Postgres 16. It
+does not prove behaviour under PostgREST with Supabase's own role grants, or
+that Supabase Auth fills `auth.users` the way the local stand-ins assume.
 
-The repository has no ESLint configuration file and no ESLint dependency, so
-`next lint` enters its interactive first-run setup prompt and lints nothing.
-Both `README.md` and `CLAUDE.md` document the command as though it works.
+Create two projects, development and production. Apply
+`supabase/migrations/*.sql` in order to development, then `supabase/seed.sql`,
+then re-run `db/local-rehearsal/10_permission_suite.sql` against it. That suite
+creates and deletes throwaway users — **never point it at production**.
 
-Add `eslint` and `eslint-config-next` as dev dependencies with an `.eslintrc`
-extending `next/core-web-vitals`, then run it once. Roughly 5,700 lines have
-never been linted; expect it to have something to say, and expect some of it to
-be worth acting on.
-
-### 1. Put assertions around the money
-
-There are no tests on this project. The first ones should cover
-`src/lib/format.ts`, because it is where the revenue model lives and because it
-is pure, small and dependency-free:
-
-- `formatFCFA` groups correctly in both locales and never emits centimes.
-- `formatFCFACompact` is right at 1,000, 100,000 and 10,000,000 FCFA.
-- The 30% deposit rounds to the nearest 50 FCFA, including at the boundaries.
-- A 12% commission on a known total produces the expected figure.
-- `DEFAULT_COMMISSION` stays inside the 10–15% band.
-
-That last one looks trivial until somebody changes the default to 18% in a
-hurry.
-
-### 2. Measure the thing on a real phone
+### 1. Measure the thing on a real phone
 
 The product is built for a mid-range Android phone on a slow connection —
 mobile-first layout, three runtime dependencies, no images, 87.1 kB of shared
-JS. It has never been measured on one. Run Lighthouse on a throttled 3G profile
-and open it on an actual device before claiming the performance story.
+JS, every route prerendered. It has never been measured on one. Run Lighthouse
+on a throttled 3G profile and open it on an actual device before claiming the
+performance story.
 
-### 3. Walk the full flow by hand and write down where it lies
+### 2. Walk the full flow by hand and write down where it lies
 
 Nobody has clicked through the whole product in one sitting and noted every
-point where a screen implies something happened that did not. Start at the home
-page, search, open a profile, request a quote, compare offers, check out, land
-on the dashboard, leave a review, then switch to the caterer and admin
-dashboards. The list that comes out of that walk is the real backlog, and
-[`DEMO_SCRIPT.md`](./DEMO_SCRIPT.md) is the route to follow.
+point where a screen implies something happened that did not. The list that
+comes out of that walk is the real backlog, and [`DEMO_SCRIPT.md`](./DEMO_SCRIPT.md)
+is the route to follow.
 
-### 4. Reconcile `CLAUDE.md` with the code
+### 3. Add tests that render something
 
-Its page list stops at twelve routes and the 404; there are seventeen and the 404. `/login`, `/signup`,
-`/offers`, `/review` and `/caterers/join` are missing from it. Its TODO items 4
-and 6 — the review form and caterer onboarding — describe screens that already
-exist and need a backend rather than a build. Fix both, or the next assistant
-to read that file will start by rebuilding something.
+`src/lib` has coverage. Nothing renders a component in a test yet, and that
+matters most in the week the data layer moves: a broken query should fail a
+test rather than quietly render an empty page — which is exactly how RLS fails.
 
 ## Decisions only the owner can make
 

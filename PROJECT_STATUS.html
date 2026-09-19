@@ -169,7 +169,7 @@
     quotes, and pay a deposit by Mobile Money. It is a booking and quotation platform,
     not a food-delivery app, and it earns a commission on each completed booking.
   </p>
-  <p class="meta">Status as of <strong>19 September 2026</strong> · Front end complete on seed data · Backend chosen (Supabase), not started · No auth, no payments · Not deployed</p>
+  <p class="meta">Status as of <strong>19 September 2026</strong> · Front end complete on seed data · Supabase schema written and rehearsed locally, not applied · No auth, no payments · Not deployed</p>
 </header>
 
 <div class="banner">
@@ -179,11 +179,13 @@
 
   <p><strong>"Built" and "working" are different words on this page.</strong> Built means the code exists, typechecks, and produces the screen it is supposed to produce. Working would mean a real person completed the action and the result survived. <b>Nothing on this project is Working yet</b>, because there is no server to survive into. The counters below separate the two on purpose, and they should stay separated as the backend lands.</p>
 
-  <p><strong>Verified on 19 September by running it.</strong> Four facts here are results, not claims. <code>npm run build</code> succeeds on Next.js 14.2.15 and emits 18 route entries. <code>tsc --noEmit</code> exits clean. The EN and FR dictionaries are at exact parity — 199 keys each, with no key present in one language and missing from the other. And one negative result: <b><code>npm run lint</code> does not work.</b> The repository has no ESLint configuration and no ESLint dependency, so <code>next lint</code> drops into its interactive first-run setup prompt and never lints anything. Both <code>README.md</code> and <code>CLAUDE.md</code> list it as a normal command. It has never run.</p>
+  <p><strong>What moved on 19 September.</strong> Lint works for the first time and passes. The project has tests — 20 of them, on the money and the dictionary. Every user-facing string is in the dictionary. All eight caterer profiles prerender. Approve and reject are different actions, and the two dead upsell buttons say what they are waiting for. And the Supabase schema exists: seven migrations, thirteen tables, 31 policies and a generated seed, <b>rehearsed against a real PostgreSQL 16 with 53 permission assertions passing</b>. None of it has touched a hosted project.</p>
 
-  <p><strong>The project documentation is behind the code.</strong> <code>CLAUDE.md</code> lists "build a working leave-a-review form" and "a real signup/profile-builder flow" as things still to do, and its page inventory stops at twelve routes and the 404. Both of those screens were in fact shipped in commit <code>ed3827d</code>, along with <code>/login</code>, <code>/signup</code> and <code>/offers</code>. Five routes exist that the project's own documentation does not mention. That is not a defect in the code, but it is the reason this status page was needed: the source of truth had drifted.</p>
+  <p><strong>Verified on 19 September by running it.</strong> Four facts here are results, not claims. <code>npm run build</code> succeeds on Next.js 14.2.15 and emits 18 route entries. <code>tsc --noEmit</code> exits clean. The EN and FR dictionaries are at exact parity — 199 keys each, with no key present in one language and missing from the other. <code>npm run lint</code> now runs and passes — it previously dropped into <code>next lint</code>'s interactive setup prompt and linted nothing, despite both <code>README.md</code> and <code>CLAUDE.md</code> documenting it. And the migrations apply cleanly, in order, to PostgreSQL 16.13.</p>
 
-  <p><strong>One architecture rule is being broken at scale.</strong> <code>CLAUDE.md</code> requires every user-facing string to go through <code>useI18n().t(key)</code> with EN and FR entries in the dictionary. There are <b>94 inline <code>fr ? "…" : "…"</code> ternaries across 9 files</b> that bypass it entirely, concentrated in the newer pages — <code>/caterers/join</code> alone has 27. The pages still render correctly in both languages, so nothing is visibly broken; what is lost is the single place to change a translation, and the ability to add a third language without touching every file. The dictionary itself remains healthy and at parity, which is why this is In progress rather than Broken.</p>
+  <p><strong>The documentation had drifted, and has been corrected.</strong> <code>CLAUDE.md</code> listed twelve routes and the 404 where there are seventeen, and asked for a review form and a caterer onboarding flow that both shipped in commit <code>ed3827d</code>. Its TODO list is now split into "built but simulated — connect these, do not rebuild them" and "not started", which is the distinction that was actually missing. This is worth keeping right: it is the file an assistant reads first, and a stale one costs a rebuild.</p>
+
+  <p><strong>The architecture rule that was being broken at scale now holds.</strong> 94 inline <code>fr ? "…" : "…"</code> ternaries across 9 files bypassed the dictionary entirely — <code>/caterers/join</code> alone had 27. All of them are gone. The dictionary went from 199 keys per language to 325 and is still at exact parity, and a test now fails if that parity breaks. Nothing was visibly broken before; what was missing was a single place to change a translation, and the ability to add a language without touching every file.</p>
 
   <p><strong>Decided 19 September: the backend is Supabase.</strong> The data model was designed relationally, written down relationally, and every query the UI needs is a relational query. That unblocks group J below, and it is why the deliverable list grew from 63 rows to 85 on the same day — the Supabase work, the payment paths that need no provider, and the non-code launch prerequisites are all now tracked instead of implied. <b>A falling percentage here means the list got honest, not that the project went backwards.</b></p>
 
@@ -191,55 +193,63 @@
 
   <p><strong>No deployment.</strong> <code>vercel.json</code> pins the framework to Next.js and the application is a static-friendly build with only one server-rendered route, so hosting is straightforward. But no deployment has been made or confirmed from here, and there is no environment configuration to make yet, because there are no secrets to configure. The first real deployment should wait until there is a backend for it to talk to, or be published knowingly as a public demo.</p>
 
-  <p><strong>Zero automated tests.</strong> Not one. On a project whose money model is a percentage of a booking total, the commission and deposit arithmetic in <code>src/lib/format.ts</code> is the first thing that should have a test around it, and it is a small, pure, dependency-free function — perhaps thirty minutes of work for the highest-value coverage on the project.</p>
+  <p><strong>The money is now tested; the components are not.</strong> Writing the first assertions found something: the 30% deposit rounding lived inside the checkout component, so the platform's own deposit policy was defined by a page. It moved to <code>src/lib/format.ts</code> as <code>depositFor</code>, <code>balanceAfterDeposit</code> and <code>commissionFor</code>. What still has no coverage is anything that renders — worth having before the data layer moves, so that a broken query shows up as a failing test rather than an empty page.</p>
 </div>
 
 <h2>Overall progress</h2>
 
 <div class="stats">
-  <div class="stat"><div class="n">45 / 85</div><div class="l">Deliverables built</div></div>
+  <div class="stat"><div class="n">56 / 87</div><div class="l">Deliverables built</div></div>
   <div class="stat"><div class="n">5 / 12</div><div class="l">Acceptance criteria met</div></div>
-  <div class="stat"><div class="n">4</div><div class="l">Verified by running it</div></div>
+  <div class="stat"><div class="n">53</div><div class="l">Permission assertions passing</div></div>
   <div class="stat"><div class="n">4</div><div class="l">Open decisions</div></div>
 </div>
 
 <div class="card">
-  <div class="progress-shell" role="img" aria-label="45 of 85 deliverables built, 6 in progress, 30 not started, 4 waiting on a decision">
-    <span style="width:52.94%;background:var(--built-dot)"></span>
-    <span style="width:7.06%;background:var(--progress-dot)"></span>
-    <span style="width:35.29%;background:var(--todo-dot)"></span>
-    <span style="width:4.71%;background:var(--blocked-dot)"></span>
+  <div class="progress-shell" role="img" aria-label="56 of 87 deliverables built, 8 in progress, 19 not started, 4 waiting on a decision">
+    <span style="width:64.37%;background:var(--built-dot)"></span>
+    <span style="width:9.20%;background:var(--progress-dot)"></span>
+    <span style="width:21.84%;background:var(--todo-dot)"></span>
+    <span style="width:4.60%;background:var(--blocked-dot)"></span>
   </div>
   <div class="progress-legend">
-    <span><b>45</b> Built</span>
-    <span><b>6</b> In progress</span>
-    <span><b>30</b> Not started</span>
+    <span><b>56</b> Built</span>
+    <span><b>8</b> In progress</span>
+    <span><b>19</b> Not started</span>
     <span><b>4</b> Needs a decision</span>
-    <span><b>85</b> total tracked deliverables</span>
+    <span><b>87</b> total tracked deliverables</span>
   </div>
   <p style="margin:12px 0 0; font-size:13.5px; color:var(--text-muted)">
-    <b>The denominator moved on 19 September, from 63 to 85.</b> Nothing regressed and
-    nothing was built that day; the list simply stopped ending where the front end ends.
-    Twenty-one deliverables were added — the Supabase work now that the backend is chosen,
-    the payment paths that do not need a provider, the housekeeping the codebase is owed,
-    and a new group L for the things that are not code at all: a business entity, a
-    merchant account, real caterers, drafted terms. The ratio fell from 71% to 53% because
-    the measurement got honest, not because the work got worse.
+    <b>The denominator moved twice on 19 September.</b> First from 63 to 85, when
+    the list stopped ending where the front end ends: the Supabase work now that
+    the backend is chosen, the payment paths that need no provider, the
+    housekeeping the codebase was owed, and a new group L for the eleven things
+    that are not code at all. Then from 85 to 87, as two deliverables turned out
+    to be two things each — unit tests and component tests are not the same job,
+    and neither are a local rehearsal harness and a hosted project.
   </p>
   <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
-    <b>Group L is the part no amount of engineering shortens.</b> Eleven rows, none of
-    them a pull request. A registered business gates the merchant account, which gates
-    payment capture, which gates the revenue model — and that sequence runs on a legal
-    timeline, not a development one. It is on this list precisely because leaving it off
-    would make the chart look better and the plan worse.
+    <b>Eleven rows moved to Built the same day</b>, and the ratio went from 53% to
+    64% on a denominator that had just grown. Working lint and the first tests;
+    every user-facing string in the dictionary; prerendered profiles; loading and
+    error boundaries; the last two prices out of a page; approve and reject made
+    into different actions; two dead buttons given an honest state; and the
+    Supabase schema, policies, seed and rehearsal harness.
   </p>
   <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
-    <b>The 45 built items remain the whole visible product</b> — every page, every
-    component, the design system, the bilingual layer and the money arithmetic. What the
-    wider denominator shows is that the visible product was never the hard half. The
-    screens have settled what the database must store, and <code>src/lib/types.ts</code>
-    was written as that schema in advance, so group J is well specified. It is simply not
-    started.
+    <b>Group L is still the part no amount of engineering shortens.</b> Eleven
+    rows, none of them a pull request. A registered business gates the merchant
+    account, which gates payment capture, which gates the revenue model — and
+    that sequence runs on a legal timeline, not a development one. It is on this
+    list precisely because leaving it off would make the chart look better and
+    the plan worse.
+  </p>
+  <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
+    <b>And "Built" still does not mean Working.</b> The schema and its 53 passing
+    permission assertions ran against a throwaway local PostgreSQL 16, not
+    against Supabase. Nothing in this product persists yet. The single row that
+    changes that is <em>Migrations applied to the development project</em>, and
+    it needs a project to exist first.
   </p>
 </div>
 
@@ -405,14 +415,14 @@ that shows a number.</p>
     <tr><td class="item">Footer</td><td class="status"><span class="pill built">Built</span></td><td class="note">Carries a visible demo badge, which is correct while the data is invented.</td></tr>
     <tr><td class="item">Dependency-free placeholder art</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>FoodArt.tsx</code> — CSS gradient plus cuisine emoji, seeded by <code>brandHue</code> so each caterer's art is stable across renders. No CDN, no image budget.</td></tr>
     <tr><td class="item">404 page</td><td class="status"><span class="pill built">Built</span></td><td class="note">Bilingual, with a route back into browse.</td></tr>
-    <tr><td class="item">Loading and error states</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Every page renders instantly from an in-memory array, so nothing currently needs a spinner. That stops being true at the first network call. App Router <code>loading.tsx</code> and <code>error.tsx</code> boundaries belong in place <em>before</em> the data layer moves, not after.</td></tr>
+    <tr><td class="item">Loading and error states</td><td class="status"><span class="pill built">Built</span></td><td class="note">A CSS-only <code>Spinner</code>, a route-level <code>loading.tsx</code>, and an <code>error.tsx</code> inside the layout so its message is bilingual and offers a retry. Nothing needs them yet; a boundary added after the data layer moves is one added during an outage.</td></tr>
 
     <tr class="group-head"><td colspan="3">B — Domain model and seed data</td></tr>
     <tr><td class="item">Domain types</td><td class="status"><span class="pill built">Built</span></td><td class="note">170 lines mirroring eleven eventual tables. Single source of truth for UI, seed data and future queries.</td></tr>
     <tr><td class="item">Caterer seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">8 caterers across Douala, Yaoundé, Bamenda, Buea and Limbe, each with packages, menu, gallery labels and booked dates.</td></tr>
     <tr><td class="item">Review seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">12 reviews, all flagged as verified bookings, bilingual comments.</td></tr>
     <tr><td class="item">Booking and quote-request seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">10 rows spanning every <code>BookingStatus</code> from <code>quote_requested</code> to <code>disputed</code>, so each dashboard state is reachable.</td></tr>
-    <tr><td class="item">Add-on services</td><td class="status"><span class="pill built">Built</span></td><td class="note">8 add-ons plus the expansion-services roadmap.</td></tr>
+    <tr><td class="item">Add-on services</td><td class="status"><span class="pill built">Built</span></td><td class="note">7 add-ons plus a six-item expansion-services roadmap.</td></tr>
     <tr><td class="item">Query helpers over the seed layer</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>getCaterer</code>, <code>featuredCaterers</code>, <code>reviewsFor</code>, <code>catererBookings</code>, <code>totalGmv</code>, <code>totalCommission</code>. These are the functions the backend replaces.</td></tr>
 
     <tr class="group-head"><td colspan="3">C — Discovery funnel</td></tr>
@@ -424,7 +434,7 @@ that shows a number.</p>
     <tr><td class="item">Caterer profile</td><td class="status"><span class="pill built">Built</span></td><td class="note">About, cuisines, packages, menu, gallery, reviews, availability, WhatsApp contact.</td></tr>
     <tr><td class="item">Availability calendar</td><td class="status"><span class="pill built">Built</span></td><td class="note">Renders <code>bookedDates</code> as unavailable. Read-only — a caterer cannot yet block a date from the product.</td></tr>
     <tr><td class="item">Packages and menu display</td><td class="status"><span class="pill built">Built</span></td><td class="note">Per-guest pricing at the 20 / 50 / 100 / 200 bundle sizes, with highlights and a service-included flag.</td></tr>
-    <tr><td class="item">Prerendered caterer profiles</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>/caterers/[id]</code> is the only route server-rendered on demand. <code>generateStaticParams</code> prerenders every profile instead, which is the difference between a fast page and a round trip on a slow connection.</td></tr>
+    <tr><td class="item">Prerendered caterer profiles</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> Split into a server <code>page.tsx</code> wrapping <code>CatererProfileClient</code>, the same shape browse, quote, offers, checkout and review already use, so it can export <code>generateStaticParams</code>. All eight profiles prerender; the build now emits 27 static pages and no route is server-rendered on demand.</span></td></tr>
 
     <tr class="group-head"><td colspan="3">D — Quote → offer → booking</td></tr>
     <tr><td class="item">Quote request form</td><td class="status"><span class="pill built">Built</span></td><td class="note">Event type, date, city, guests, cuisine, budget, add-ons, special requests.</td></tr>
@@ -434,7 +444,7 @@ that shows a number.</p>
     <tr><td class="item">Checkout — event and payment method</td><td class="status"><span class="pill built">Built</span></td><td class="note">MTN MoMo, Orange Money, bank transfer and cash, each with the right follow-up field or warning. Cash is explicitly discouraged in the UI.</td></tr>
     <tr><td class="item">Deposit, balance and commission arithmetic</td><td class="status"><span class="pill built">Built</span></td><td class="note">30% deposit rounded to 50 FCFA, balance shown, commission applied at 12%. Pure functions, no tests.</td></tr>
     <tr><td class="item">Payment capture</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">"Pay deposit" sets a boolean and shows a generated reference of the form <code>CCS-1234</code>. No provider is contacted, and the success screen appears on the button press rather than on a webhook — which in a real integration would confirm bookings nobody paid for. See <code>Documentation/PAYMENTS.md</code>.</td></tr>
-    <tr><td class="item">Durable booking references</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>CCS-</code> plus four random digits collides at roughly one in ten thousand and is generated in the browser. A reference has to be created and stored before any provider is called, so that a webhook naming an unknown reference is an error rather than a guess.</td></tr>
+    <tr><td class="item">Durable booking references</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">The database half is done: <code>next_booking_reference()</code> draws from a sequence and returns <code>CCS-26-01234</code>, as the column default on <code>bookings</code>, so a reference exists and is stored before any provider could be called. Checkout still generates its own four random digits in the browser — that swap needs the data layer.</td></tr>
     <tr><td class="item">Bank transfer reference flow</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Needs no payment provider at all, and it is what a 500-guest wedding will actually use — the deposit alone exceeds normal Mobile Money wallet limits. Show the platform's bank details with the booking reference, mark the booking awaiting transfer, confirm against a statement. Checkout already promises details that do not exist.</td></tr>
 
     <tr class="group-head"><td colspan="3">E — Accounts and dashboards</td></tr>
@@ -444,8 +454,8 @@ that shows a number.</p>
     <tr><td class="item">Customer dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">Upcoming and past bookings, quote requests, deposit-pending prompts, links into review and checkout. Shows a fixed demo customer.</td></tr>
     <tr><td class="item">Caterer dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">Incoming requests, bookings table, earnings and commission, rating, upsell sidebar. Shows a fixed demo caterer.</td></tr>
     <tr><td class="item">Admin dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">GMV, commission, approved and pending caterers, open quotes, disputes, featured count, recent reviews.</td></tr>
-    <tr><td class="item">Caterer approve / reject</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Both buttons call the same handler, which removes the row from local state. Approving and rejecting are therefore indistinguishable, and a refresh restores the queue. The screen is right; the action is not.</td></tr>
-    <tr><td class="item">Featured listing and Premium purchase</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Both buttons render and neither has a handler. Two of the four revenue streams are presently unclickable.</td></tr>
+    <tr><td class="item">Caterer approve / reject</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Now two distinct outcomes rather than one shared handler: an approved caterer joins the approved count, a rejected one joins a rejected KPI, and a decisions panel lists what was decided with an undo and a line saying nothing is saved. The database side is written too — <code>verification_status</code> is <code>pending / approved / rejected</code> with <code>approve_caterer()</code> and <code>reject_caterer()</code>. Still local state until the two are connected.</td></tr>
+    <tr><td class="item">Featured listing and Premium purchase</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Both buttons now move the caterer into a "requested" state that says billing is not live yet, with an undo. The <code>featured_listings</code> and <code>subscriptions</code> tables exist to receive those requests. No billing behind either — but a button that says what it is waiting for beats one that silently does nothing.</td></tr>
 
     <tr class="group-head"><td colspan="3">F — Reviews, onboarding, messaging</td></tr>
     <tr><td class="item">Leave-a-review form</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Star rating, event type and comment, with a thank-you state that states plainly that nothing is published. Present in the code despite <code>CLAUDE.md</code> listing it as to-do.</td></tr>
@@ -465,21 +475,22 @@ that shows a number.</p>
     <tr><td class="item">I18n context and toggle</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>useI18n()</code> with a navbar toggle; switching is instant and does not navigate.</td></tr>
     <tr><td class="item">EN / FR dictionary</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> 199 keys in English and 199 in French, with zero keys present in one language and absent from the other. Exact parity.</span></td></tr>
     <tr><td class="item">Enum label maps</td><td class="status"><span class="pill built">Built</span></td><td class="note">Event types, cuisines, payment methods and booking statuses all have bilingual label maps rather than ad-hoc strings.</td></tr>
-    <tr><td class="item">All user-facing strings via <code>t()</code></td><td class="status"><span class="pill progress">In progress</span></td><td class="note"><span style="font-size:12.5px;color:var(--progress-fg)"><b>Measured 19 September.</b> 94 inline <code>fr ? … : …</code> ternaries across 9 files bypass the dictionary: <code>/caterers/join</code> 27, <code>/contact</code> 14, <code>/signup</code> 13, <code>/login</code> 11, <code>/about</code> 8, <code>/review</code> 6, <code>/legal</code> 6, <code>/faq</code> 5, <code>/offers</code> 4. Both languages render correctly; the architecture rule does not hold.</span></td></tr>
+    <tr><td class="item">All user-facing strings via <code>t()</code></td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> All 94 inline ternaries are gone. What still matches that shape is four BCP-47 locale codes passed to <code>Intl</code>, which are not translations. The dictionary grew from 199 keys per language to 325, still at exact parity.</span><br><span style="font-size:12.5px;color:var(--text-faint)">Two patterns, because the strings were not one kind. Page copy moved behind <code>t()</code>; the content arrays in about and faq were already <code>Localized</code> objects and now index by locale the way <code>src/data</code> does. <code>tf(key, vars)</code> was added for the three strings that interpolate a value.</span></td></tr>
 
     <tr class="group-head"><td colspan="3">I — Money and locale formatting</td></tr>
     <tr><td class="item">FCFA formatting</td><td class="status"><span class="pill built">Built</span></td><td class="note">Full and compact forms, locale-grouped, whole numbers only.</td></tr>
     <tr><td class="item">Commission and deposit constants</td><td class="status"><span class="pill built">Built</span></td><td class="note">Band, default and deposit rate in one module, consumed everywhere.</td></tr>
     <tr><td class="item">Locale-aware dates</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>fr-FR</code> and <code>en-GB</code> formatting — day-month-year in both, which is what Cameroon expects.</td></tr>
-    <tr><td class="item">Subscription and featured prices in <code>src/lib</code></td><td class="status"><span class="pill todo">Not started</span></td><td class="note">15,000 FCFA a month and 10,000 FCFA for seven days are written into the caterer dashboard rather than into the money module. They are the only prices in the product that escape that rule, and they will be changed in one place and not the other.</td></tr>
+    <tr><td class="item">Subscription and featured prices in <code>src/lib</code></td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>PREMIUM_MONTHLY_PRICE</code>, <code>FEATURED_LISTING_PRICE</code>, <code>FEATURED_LISTING_DAYS</code> and <code>PREMIUM_COMMISSION</code>. No price in the product is written into a page any more.</td></tr>
 
     <tr class="group-head"><td colspan="3">J — Backend and persistence <span style="font-weight:400;opacity:.7">(Supabase, decided 19 September)</span></td></tr>
+    <tr><td class="item">Local migration rehearsal harness</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>npm run db:rehearse</code> drops a throwaway database, applies the Supabase stand-ins and every migration in order, runs the 53 permission assertions and prints a schema summary.</span><br><span style="font-size:12.5px;color:var(--text-faint)">It has already earned its keep, catching four defects that would each have been found expensively: a profile trigger with six target columns and five values, which would have failed every sign-up; a partial index predicate using <code>now()</code>, which Postgres refuses; revoking a helper function from <code>anon</code>, which broke the <em>public</em> caterer directory so logged-out visitors would have seen an empty marketplace; and column-level UPDATE grants belonging to the role rather than the policy, so the grant that stopped a caterer verifying itself also stopped administrators approving anyone.</span></td></tr>
     <tr><td class="item">Supabase projects, development and production</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Two from the first day. Separating them later is worse than the ten minutes it costs now, and the policy suite creates and deletes throwaway rows, so it must never point at production.</td></tr>
-    <tr><td class="item">Database schema as migrations</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Eleven tables generated from <code>src/lib/types.ts</code>, which was written as this schema in advance. Money columns are integers in FCFA — there are no centimes and floating-point money is a bug waiting to be written.</td></tr>
-    <tr><td class="item">Row Level Security policies</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The seven rules in <code>Documentation/ROLE_MODEL.md</code>, expressed in the database rather than in React. A caterer seeing another caterer's revenue is the worst leak this product can have, and a filter in a component is one forgotten condition away from it.</td></tr>
-    <tr><td class="item">Client layer and environment configuration</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Browser and server clients, generated row types, and an <code>.env.example</code> listing names and never values. The service-role key bypasses every policy and must never carry a <code>NEXT_PUBLIC_</code> prefix.</td></tr>
-    <tr><td class="item">Seed script</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Loads <code>src/data/*</code> into a fresh project so the UI has something to render on day one, and so the schema is exercised by real rows before any real ones exist.</td></tr>
-    <tr><td class="item">Migrations applied to the development project</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The step that turns written SQL into a verified schema. Nothing in this group can be called Working until this has happened and the policies have been tested against it.</td></tr>
+    <tr><td class="item">Database schema as migrations</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Rehearsed 19 September against PostgreSQL 16.13.</b> Seven migrations, thirteen tables, twelve functions, applied in order each inside its own transaction. Money is an <code>fcfa</code> integer domain that refuses negatives; bilingual text is a <code>localized</code> jsonb domain that refuses a row carrying only English. Commission is stored per booking so a Premium upgrade cannot rebate past bookings. Triggers keep the blocked-date calendar, caterer ratings and the featured flag from drifting from the tables they summarise.</span><br><span style="font-size:12.5px;color:var(--text-faint)">Applied to a throwaway local database, never to a hosted project.</span></td></tr>
+    <tr><td class="item">Row Level Security policies</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Rehearsed 19 September: 53 permission assertions, all passing.</b> RLS on all thirteen tables, 31 policies. An outsider sees no booking, quote, payment or profile and cannot ask the database who is an administrator. A customer sees only their own bookings, cannot make themselves an admin, cannot rewrite a total or a commission rate, and cannot write a payment row. A caterer cannot verify, feature, upgrade or re-rate itself, and cannot edit a rival. A review can only be written by the customer whose booking it was, only once, and only after the event is completed.</span><br><span style="font-size:12.5px;color:var(--text-faint)">Several assertions exist to pin down <em>how</em> a denial fails, because RLS fails silently: an ordinary customer's <code>delete from reviews</code> succeeds and removes nothing, so the assertion that matters is that the review is still there afterwards.</span></td></tr>
+    <tr><td class="item">Client layer and environment configuration</td><td class="status"><span class="pill progress">In progress</span></td><td class="note"><code>.env.example</code> lists every variable by name and no values, and <code>src/lib/supabase/env.ts</code> reports whether the project is configured — as a boolean, so a missing variable degrades to the seed data rather than to a white screen. The service-role key is read lazily and throws if it is ever touched in the browser.<br><span style="font-size:12.5px;color:var(--text-faint)"><code>@supabase/supabase-js</code> is deliberately not installed. There is no project to test a client against, and the version should be pinned when there is — this project ships three runtime dependencies and should not gain a fourth for something unusable.</span></td></tr>
+    <tr><td class="item">Seed script</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>npm run db:seed:generate</code> writes <code>supabase/seed.sql</code> from <code>src/data</code>, and it applies cleanly to the rehearsed schema: 8 caterers, 32 packages, 34 menu items, 21 blocked dates, 7 add-ons. Every statement is an upsert, so it is re-runnable.</span><br><span style="font-size:12.5px;color:var(--text-faint)">It stops at bookings, quotes and reviews, which reference profiles, which reference <code>auth.users</code> — only Supabase Auth can create those. They arrive with the first real accounts.</span></td></tr>
+    <tr><td class="item">Migrations applied to the development project</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The step that turns a local result into a real one. The rehearsal proves the SQL, the constraints, the triggers and the policy logic on a real PostgreSQL 16; it does not prove behaviour under PostgREST with Supabase's own role grants, or that Supabase Auth fills <code>auth.users</code> the way the stand-ins assume. Until this row moves, nothing in this group is Working.</td></tr>
     <tr><td class="item">Replace the seed layer with queries</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Every page reads through the exported helpers in <code>src/data</code>, so this is mechanical if the seam is as clean as it looks. If the UI has to change, the seam was not clean — which is worth finding out early.</td></tr>
     <tr><td class="item">Photo storage and upload</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Placeholder art is good enough to demonstrate and not good enough to sell with. Nobody chooses a caterer without seeing the food.</td></tr>
     <tr><td class="item">Notifications</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">A quote request nobody is told about is not a quote request. WhatsApp Business API or SMS, not email — and arguably more urgent than photographs.</td></tr>
@@ -487,9 +498,10 @@ that shows a number.</p>
     <tr class="group-head"><td colspan="3">K — Quality and release engineering</td></tr>
     <tr><td class="item">Production build</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>npm run build</code> succeeds on Next.js 14.2.15: 18 route entries — 17 pages plus the 404 — of which 17 prerender as static content and one (<code>/caterers/[id]</code>) is server-rendered on demand. Next reports 19 static pages generated. 87.1 kB shared JS; the heaviest route is the home page at 114 kB first load — a defensible budget for a mobile-first product on a slow connection.</span></td></tr>
     <tr><td class="item">Typecheck</td><td class="status"><span class="pill built">Built</span></td><td class="note">Runs as part of the build and standalone. Clean.</td></tr>
-    <tr><td class="item">Working lint setup</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><span style="font-size:12.5px;color:var(--progress-fg)"><b>Verified broken 19 September.</b> No ESLint configuration file and no ESLint dependency exist. <code>npm run lint</code> enters <code>next lint</code>'s interactive setup prompt and lints nothing. Documented as a working command in both <code>README.md</code> and <code>CLAUDE.md</code>.</span></td></tr>
-    <tr><td class="item">Automated tests</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">No test runner, no test files, no coverage. The commission and deposit functions are the obvious first target and the cheapest.</td></tr>
-    <tr><td class="item">Project documentation matches the code</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>CLAUDE.md</code> lists twelve routes and the 404 where there are seventeen, and two of its TODO items describe screens that shipped in <code>ed3827d</code>. The next person or assistant to read it will start by rebuilding something that already exists.</td></tr>
+    <tr><td class="item">Working lint setup</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>eslint</code> and <code>eslint-config-next</code> added with a <code>core-web-vitals</code> config. The command both README.md and CLAUDE.md already documented now runs, and its first pass over 5,700 previously unlinted lines came back clean.</span></td></tr>
+    <tr><td class="item">Unit tests on the money and the dictionary</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> Vitest, 20 assertions passing. FCFA formatting in both locales with no centimes and rounding rather than truncation; the deposit rounding to the nearest 50 FCFA and never exceeding the total; deposit plus balance equalling the total; commission on a known total; the default rate staying inside the 10&ndash;15% band; EN/FR key parity with no empty translations; every enum labelled in both languages.</span><br><span style="font-size:12.5px;color:var(--text-faint)">Writing them found that the deposit rounding lived inside the checkout component, so the platform's deposit policy was defined by a page. It now lives in <code>src/lib/format.ts</code>.</span></td></tr>
+    <tr><td class="item">Component and end-to-end tests</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Nothing renders a component in a test yet. Worth having before the data layer moves, so a broken query shows up as a failure rather than an empty page.</td></tr>
+    <tr><td class="item">Project documentation matches the code</td><td class="status"><span class="pill built">Built</span></td><td class="note">All seventeen routes are listed. The TODO list is split into "built but simulated — connect these, do not rebuild them" and "not started", so the next person or assistant to read it does not start by rebuilding the review form. Money, permission and status-page conventions added.</td></tr>
     <tr><td class="item">Deployment</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>vercel.json</code> pins the framework. No deployment has been made or confirmed. See <code>Documentation/DEPLOYMENT.md</code>.</td></tr>
 
     <tr class="group-head"><td colspan="3">L — Launch prerequisites</td></tr>
@@ -559,43 +571,62 @@ distinct values, ordered joins and two aggregates. The reasoning is in
 
 <h2>10 · Immediate next steps</h2>
 
-<p class="lead">In order. The first three are cheap, unblocked, and can be done today; the
-rest depend on decisions above.</p>
+<p class="lead">The housekeeping is done and the Supabase groundwork is written.
+Everything below now runs through one gate: a project has to exist.</p>
 
+<h3>The gate</h3>
 <ul class="clean">
-  <li><strong>Fix the lint setup.</strong> Add <code>eslint</code> and
-    <code>eslint-config-next</code> and an <code>.eslintrc</code>, so the command both
-    files already document actually runs. Then run it once and see what it says about
-    5,700 lines that have never been linted.</li>
-  <li><strong>Test the money.</strong> <code>formatFCFA</code>, the 30% deposit rounding
-    and the 12% commission are pure functions with no dependencies. A handful of
-    assertions around them is the highest-value hour available on this project.</li>
-  <li><strong>Reconcile <code>CLAUDE.md</code> with the code.</strong> Add the five
-    undocumented routes to its page list, and move the review form and caterer
-    onboarding out of the to-do list into a "simulated, needs a backend" section, where
-    they honestly belong.</li>
-  <li><strong>Decide the backend</strong> and create the schema from
-    <code>src/lib/types.ts</code>. The types have already done the design work.</li>
-  <li><strong>Make one flow real, end to end</strong> before making all of them real:
-    quote request → stored → caterer notified → caterer replies. That single path
-    exercises the database, auth and notifications together, and it is the flow the
-    business runs on.</li>
-  <li><strong>Then authentication</strong>, so the three dashboards stop being public
-    URLs showing fixed demo users.</li>
-  <li><strong>Then payments</strong>, once there is a merchant account to test against.
-    Write the bank-transfer reference flow first — it needs no provider integration and
-    it is what large weddings will actually use.</li>
-  <li><strong>Close the two dead buttons.</strong> Featured listings and Premium are two
-    of the four stated revenue streams and neither is clickable. Either wire them to
-    billing or take them off the screen until they work.</li>
-  <li><strong>Move the 94 inline ternaries into the dictionary</strong> before the string
-    count grows. This gets harder every time a page is added.</li>
+  <li><strong>Create two Supabase projects</strong>, development and production.
+    Two from the first day — separating them later is worse than the ten minutes
+    it costs now, and the permission suite creates and deletes throwaway users,
+    so it must never point at production.</li>
+  <li><strong>Apply <code>supabase/migrations/*.sql</code> to development</strong>,
+    in order, then <code>supabase/seed.sql</code>.</li>
+  <li><strong>Re-run the permission suite against the hosted project.</strong>
+    This is the single highest-value step on the list: it is the only thing that
+    turns 53 local assertions into a real result under PostgREST and Supabase's
+    own role grants.</li>
+</ul>
+
+<h3>Then, in this order</h3>
+<ul class="clean">
+  <li><strong>Install <code>@supabase/supabase-js</code> and write the clients.</strong>
+    Deliberately left out until there is something to test against.</li>
+  <li><strong>Replace the helper bodies in <code>src/data/</code> with queries</strong>,
+    one at a time, keeping their signatures. If the UI has to change, the seam
+    was not as clean as it looks.</li>
+  <li><strong>Make one flow real end to end</strong> before making all of them
+    real: quote request stored → caterer notified → caterer replies. That single
+    path exercises the database, auth and notifications together, and it is the
+    flow the business runs on.</li>
+  <li><strong>Then authentication</strong>, so the three dashboards stop being
+    public URLs showing fixed demo users, and so the policies have a real
+    <code>auth.uid()</code> to work with.</li>
+  <li><strong>Then the bank-transfer flow.</strong> It needs no merchant account
+    and it is what a 500-guest wedding will use — the deposit alone exceeds
+    normal Mobile Money wallet limits.</li>
+  <li><strong>Then Mobile Money</strong>, once there is an account to test
+    against. The success screen has to follow the webhook, not the button press.</li>
+</ul>
+
+<h3>Running alongside, none of it blocked by the above</h3>
+<ul class="clean">
+  <li><strong>Register the business entity</strong> and start the merchant
+    account or aggregator conversation. Longest pole on the project.</li>
+  <li><strong>Recruit real caterers</strong> in the launch city, and collect real
+    photographs and menus from them. This is the work that cannot be automated
+    at all, and a marketplace with no caterers has nothing to show.</li>
+  <li><strong>Commission the legal pages</strong> from someone qualified. The
+    current ones say in both languages that they are demonstration text.</li>
+  <li><strong>Add component and end-to-end tests</strong> before the data layer
+    moves, so a broken query fails a test rather than rendering an empty page.</li>
 </ul>
 
 <footer>
-  Reflects the repository at commit <code>605f2d2</code> on branch <code>dev</code>,
-  read and built on 19 September 2026. Four claims on this page were verified by running
-  the toolchain rather than by reading the code; they are marked in place.
+  Reflects branch <code>dev</code> on 19 September 2026. Claims marked
+  <b>Verified</b> or <b>Rehearsed</b> were established by running the toolchain
+  or applying SQL to a real PostgreSQL 16, not by reading code. Nothing here has
+  been applied to a hosted Supabase project or deployed anywhere.
   Update this page whenever a deliverable status changes, and keep "Built" and
   "Working" separate as the backend lands.
 </footer>

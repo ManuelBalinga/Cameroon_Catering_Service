@@ -20,11 +20,19 @@ Revenue = 10–15% booking commission + featured listings + Premium subscription
 ## Run / verify
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build + typecheck (run before committing)
-npm run lint
+npm run dev              # http://localhost:3000
+npm run build            # production build + typecheck (run before committing)
+npm run typecheck        # tsc --noEmit on its own
+npm run lint             # eslint-config-next; clean as of 19 Sep
+npm test                 # vitest — money and dictionary assertions
+npm run db:rehearse      # apply migrations to a throwaway local Postgres
+npm run db:seed:generate # regenerate supabase/seed.sql from src/data
 ```
-Node 18.18+ (developed on Node 24).
+Node 18.18+ (developed on Node 24). Run build, typecheck, lint and test before
+calling anything done.
+
+`db:rehearse` needs a local PostgreSQL 16 and drops its target database. Never
+point it at a hosted project.
 
 ## Architecture rules (keep these)
 - **UI** lives in `src/components`, **data** in `src/data`, **domain logic/types**
@@ -41,34 +49,69 @@ Node 18.18+ (developed on Node 24).
   DB tables (users, customers, caterers, bookings, quote_requests, reviews,
   payments, messages, featured_listings, subscriptions, add_on_services).
 
-## Pages (all built)
-Home `/` · Browse `/browse` · Caterer profile `/caterers/[id]` · Quote `/quote`
-· Checkout `/checkout` · Customer dashboard `/dashboard/customer` · Caterer
-dashboard `/dashboard/caterer` · Admin `/admin` · About `/about` · Contact
-`/contact` · FAQ `/faq` · Legal `/legal` · 404.
+## Pages (17 routes + 404, all built)
+Home `/` · Browse `/browse` · Caterer profile `/caterers/[id]` · Caterer signup
+`/caterers/join` · Quote `/quote` · Compare offers `/offers` · Checkout
+`/checkout` · Leave a review `/review` · Sign in `/login` · Sign up `/signup` ·
+Customer dashboard `/dashboard/customer` · Caterer dashboard
+`/dashboard/caterer` · Admin `/admin` · About `/about` · Contact `/contact` ·
+FAQ `/faq` · Legal `/legal` · 404.
 
-## Still TODO (good tasks for a cloud agent)
-These are intentionally mocked in the MVP — replacing them is the path to prod:
-1. **Backend/DB** — wire Supabase or Firebase to the entities in `src/lib/types.ts`;
-   replace `src/data/*` with real queries.
-2. **Auth** — real customer/caterer/admin login (currently simulated; dashboards
-   show fixed demo users).
-3. **Payments** — integrate MTN MoMo & Orange Money collection APIs + bank
-   transfer reference flow in `src/app/checkout` (currently a simulated success).
-4. **Reviews** — build a working "leave a review" form for completed bookings
-   (customer dashboard currently links to the profile's reviews anchor).
-5. **In-app messaging** — thread between customer & caterer (today it's WhatsApp
-   deep-links + a contact form).
-6. **Caterer onboarding** — a real signup/profile-builder flow (today caterers
-   are seed data; admin can approve/reject the unverified one).
-7. **Featured listings & subscriptions** — make the admin/caterer upsell buttons
-   actually change state + billing.
-8. **Real photos** — swap `FoodArt` placeholders for uploaded images once a
-   storage bucket exists.
-9. **Tests** — none yet; add component/e2e coverage.
+Every route prerenders as static content, including all eight caterer profiles
+via `generateStaticParams`.
+
+## Where things actually stand
+
+`PROJECT_STATUS.html` (repo root) tracks all 85 deliverables and is the source
+of truth. Read it before planning work. Two words are used carefully across this
+project: **built** means the code exists, typechecks and renders; **working**
+means a real person did it and the result survived a refresh. Nothing is working
+yet, because there is no server for anything to survive into.
+
+### Built but simulated — these need a backend, not a rebuild
+These screens exist. Do not rebuild them; connect them.
+- **Sign in / sign up** (`/login`, `/signup`) — any credentials are accepted and
+  the page says so.
+- **Leave a review** (`/review`) — gated to a completed booking by route, posts
+  nowhere.
+- **Caterer onboarding** (`/caterers/join`) — never reaches the admin queue.
+- **Checkout** (`/checkout`) — real deposit and commission arithmetic, no
+  provider call, and the success screen fires on the button press rather than on
+  a webhook.
+- **Admin approve / reject** — distinct outcomes in local state; resets on
+  refresh.
+- **Featured listing and Premium** — both move to a "requested" state; no
+  billing behind them.
+
+### Not started
+1. **Backend** — Supabase, decided 19 Sep. The schema, policies and seed are
+   written in `supabase/` and rehearsed against a local Postgres, but no project
+   exists and nothing has been applied. See `Documentation/DATABASE.md`.
+2. **Replace `src/data/*` with queries** — keep the helper signatures; their
+   bodies become queries. That seam is the whole migration.
+3. **Auth** — no sessions, no roles enforced; all three dashboards are public
+   URLs showing fixed demo users.
+4. **Payments** — MTN MoMo and Orange Money need a registered business and a
+   merchant account before code. The bank-transfer flow needs neither and should
+   come first. See `Documentation/PAYMENTS.md`.
+5. **Notifications** — a quote request nobody is told about is not a quote
+   request. WhatsApp Business API or SMS, not email.
+6. **In-app messaging** — deliberately out of the MVP in favour of WhatsApp.
+7. **Real photos** — `FoodArt` placeholders until a storage bucket exists.
+8. **Component / e2e tests** — `src/lib` has unit coverage; nothing renders a
+   component in a test yet.
 
 ## Conventions
 - Commit messages end with the Co-Authored-By trailer.
+- Money: whole FCFA integers, never a float. Format through `formatFCFA` /
+  `formatFCFACompact`; take rates and prices from `src/lib/format.ts`
+  (`DEFAULT_COMMISSION`, `DEPOSIT_RATE`, `PREMIUM_MONTHLY_PRICE`,
+  `FEATURED_LISTING_PRICE`) rather than writing a number into a page.
+- Permissions belong in the database, not in TypeScript. If a rule changes, it
+  changes in a policy in `supabase/migrations/`. A filter in a component is one
+  forgotten condition away from showing a caterer another business's revenue.
+- Keep `PROJECT_STATUS.html` current in the same commit as the code. A status
+  page that lags the code is worse than none.
 - Prefer editing existing components over adding near-duplicates.
 - This is a demo MVP: keep copy realistic for Cameroon (local cities, dishes,
   Mobile Money, WhatsApp, bilingual).
