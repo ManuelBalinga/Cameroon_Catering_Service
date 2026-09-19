@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cameroon Catering Service — Project Status</title>
+<style>
+  :root {
+    --bg: #f7f7f6;
+    --surface: #ffffff;
+    --border: #e3e3e0;
+    --border-strong: #d0d0cc;
+    --text: #1a1a18;
+    --text-muted: #6b6b66;
+    --text-faint: #93938d;
+    --accent: #1a1a18;
+
+    --built-bg: #e7f6ec;      --built-fg: #14663a;      --built-dot: #1f9d55;
+    --progress-bg: #fdf1dc;   --progress-fg: #8a5a06;   --progress-dot: #d99114;
+    --todo-bg: #eeeeec;       --todo-fg: #5f5f5a;       --todo-dot: #a3a39c;
+    --blocked-bg: #e8eefb;    --blocked-fg: #234b8f;    --blocked-dot: #3b76d1;
+    --out-bg: #f3eef7;        --out-fg: #6a4a86;        --out-dot: #9b74bd;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1a1a19;
+      --border: #2c2c2a;
+      --border-strong: #3a3a37;
+      --text: #ededea;
+      --text-muted: #a3a39c;
+      --text-faint: #7a7a73;
+      --accent: #ededea;
+
+      --built-bg: #102b1c;      --built-fg: #6fd39b;      --built-dot: #35b46a;
+      --progress-bg: #322412;   --progress-fg: #e5ae55;   --progress-dot: #d99114;
+      --todo-bg: #262624;       --todo-fg: #9c9c95;       --todo-dot: #6b6b64;
+      --blocked-bg: #16223c;    --blocked-fg: #85aef0;    --blocked-dot: #3b76d1;
+      --out-bg: #271e2f;        --out-fg: #bb96d6;        --out-dot: #9b74bd;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 940px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  header.masthead { margin-bottom: 40px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--text-faint); font-weight: 600; margin: 0 0 10px;
+  }
+  h1 { font-size: 30px; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 12px; font-weight: 650; }
+  .positioning {
+    margin: 0; max-width: 62ch; color: var(--text-muted); font-size: 16px;
+    border-left: 3px solid var(--border-strong); padding-left: 16px;
+  }
+  .meta { margin-top: 18px; font-size: 13px; color: var(--text-faint); }
+
+  h2 {
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-faint); font-weight: 650;
+    margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 15px; margin: 28px 0 10px; font-weight: 620; }
+
+  p { margin: 0 0 14px; }
+  .lead { max-width: 68ch; color: var(--text-muted); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 22px;
+  }
+
+  .banner {
+    background: var(--progress-bg); border: 1px solid var(--progress-dot);
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 32px;
+  }
+  .banner strong { color: var(--progress-fg); }
+  .banner p { margin: 0; color: var(--text); font-size: 14px; }
+  .banner p + p { margin-top: 8px; }
+
+  /* progress bar */
+  .progress-shell {
+    display: flex; height: 10px; border-radius: 99px; overflow: hidden;
+    background: var(--todo-bg); border: 1px solid var(--border);
+  }
+  .progress-shell span { display: block; height: 100%; }
+  .progress-legend {
+    display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .progress-legend b { color: var(--text); font-weight: 600; }
+
+  /* stat row */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .stat .n { font-size: 26px; font-weight: 650; letter-spacing: -.02em; line-height: 1.1; }
+  .stat .l { font-size: 12px; color: var(--text-faint); margin-top: 4px; }
+
+  /* status pills */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    padding: 3px 9px 3px 7px; border-radius: 99px;
+    font-size: 12px; font-weight: 600; line-height: 1.5;
+  }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: currentColor; opacity: .9; }
+  .pill.built     { background: var(--built-bg);    color: var(--built-fg); }
+  .pill.progress  { background: var(--progress-bg); color: var(--progress-fg); }
+  .pill.todo      { background: var(--todo-bg);     color: var(--todo-fg); }
+  .pill.blocked   { background: var(--blocked-bg);  color: var(--blocked-fg); }
+  .pill.out       { background: var(--out-bg);      color: var(--out-fg); }
+
+  /* tables */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  th {
+    text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-faint); font-weight: 650;
+    padding: 12px 18px; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td { padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.item { font-weight: 550; width: 34%; }
+  td.note { color: var(--text-muted); font-size: 13.5px; }
+  td.status { width: 1%; white-space: nowrap; }
+
+  .group-head td {
+    background: var(--bg); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-faint); font-weight: 650; padding: 10px 18px;
+  }
+
+  ul.clean { margin: 0 0 14px; padding-left: 20px; color: var(--text-muted); }
+  ul.clean li { margin-bottom: 6px; }
+  ul.clean li strong { color: var(--text); font-weight: 600; }
+
+  .flow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; color: var(--text-muted); white-space: nowrap;
+  }
+
+  .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+         background: var(--todo-bg); padding: 1px 5px; border-radius: 4px; }
+
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border);
+           font-size: 13px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Cameroon Catering Service · Independent Project</p>
+  <h1>Cameroon Catering Service</h1>
+  <p class="positioning">
+    A web-first catering marketplace for Cameroon. Customers find and compare verified
+    caterers for weddings, funerals, birthdays, church, school and office events, request
+    quotes, and pay a deposit by Mobile Money. It is a booking and quotation platform,
+    not a food-delivery app, and it earns a commission on each completed booking.
+  </p>
+  <p class="meta">Status as of <strong>19 September 2026</strong> · Front end complete on seed data · No backend, no auth, no payments · Not deployed</p>
+</header>
+
+<div class="banner">
+  <p><strong>What exists today.</strong> A complete, bilingual, mobile-first Next.js 14 front end: 17 routes plus a 404 page, 47 source modules, about 5,700 lines of TypeScript and TSX. It builds clean and typechecks clean. Every screen in the customer, caterer and admin journeys is drawn and navigable, and the numbers on those screens are computed rather than hardcoded — commission, deposit, per-guest totals and add-on scaling all run through real functions in <code>src/lib</code>.</p>
+
+  <p><strong>What does not exist.</strong> Anything behind the screen. There is no database, no authentication, no payment integration and no persistence of any kind. Every piece of state in this application lives in React component state and is gone on refresh. A quote request is not sent anywhere. A deposit is not collected. An approved caterer is not approved — the row simply disappears from a list until the page reloads. This is deliberate and documented, but it is the difference between a demonstrable product and a usable one.</p>
+
+  <p><strong>"Built" and "working" are different words on this page.</strong> Built means the code exists, typechecks, and produces the screen it is supposed to produce. Working would mean a real person completed the action and the result survived. <b>Nothing on this project is Working yet</b>, because there is no server to survive into. The counters below separate the two on purpose, and they should stay separated as the backend lands.</p>
+
+  <p><strong>Verified on 19 September by running it.</strong> Four facts here are results, not claims. <code>npm run build</code> succeeds on Next.js 14.2.15 and emits 18 route entries. <code>tsc --noEmit</code> exits clean. The EN and FR dictionaries are at exact parity — 199 keys each, with no key present in one language and missing from the other. And one negative result: <b><code>npm run lint</code> does not work.</b> The repository has no ESLint configuration and no ESLint dependency, so <code>next lint</code> drops into its interactive first-run setup prompt and never lints anything. Both <code>README.md</code> and <code>CLAUDE.md</code> list it as a normal command. It has never run.</p>
+
+  <p><strong>The project documentation is behind the code.</strong> <code>CLAUDE.md</code> lists "build a working leave-a-review form" and "a real signup/profile-builder flow" as things still to do, and its page inventory stops at twelve routes and the 404. Both of those screens were in fact shipped in commit <code>ed3827d</code>, along with <code>/login</code>, <code>/signup</code> and <code>/offers</code>. Five routes exist that the project's own documentation does not mention. That is not a defect in the code, but it is the reason this status page was needed: the source of truth had drifted.</p>
+
+  <p><strong>One architecture rule is being broken at scale.</strong> <code>CLAUDE.md</code> requires every user-facing string to go through <code>useI18n().t(key)</code> with EN and FR entries in the dictionary. There are <b>94 inline <code>fr ? "…" : "…"</code> ternaries across 9 files</b> that bypass it entirely, concentrated in the newer pages — <code>/caterers/join</code> alone has 27. The pages still render correctly in both languages, so nothing is visibly broken; what is lost is the single place to change a translation, and the ability to add a third language without touching every file. The dictionary itself remains healthy and at parity, which is why this is In progress rather than Broken.</p>
+
+  <p><strong>Payments are the gating decision, not the gating code.</strong> The checkout screen already collects the method, the MoMo number and the event date, and computes the 30% deposit against the package total. What it cannot do is call MTN or Orange, and that is not primarily an engineering problem: collection APIs for both require a registered Cameroonian business entity, a merchant account and KYC. Until that exists, the integration cannot be tested even if it were written. See <code>Documentation/PAYMENTS.md</code>.</p>
+
+  <p><strong>No deployment.</strong> <code>vercel.json</code> pins the framework to Next.js and the application is a static-friendly build with only one server-rendered route, so hosting is straightforward. But no deployment has been made or confirmed from here, and there is no environment configuration to make yet, because there are no secrets to configure. The first real deployment should wait until there is a backend for it to talk to, or be published knowingly as a public demo.</p>
+
+  <p><strong>Zero automated tests.</strong> Not one. On a project whose money model is a percentage of a booking total, the commission and deposit arithmetic in <code>src/lib/format.ts</code> is the first thing that should have a test around it, and it is a small, pure, dependency-free function — perhaps thirty minutes of work for the highest-value coverage on the project.</p>
+</div>
+
+<h2>Overall progress</h2>
+
+<div class="stats">
+  <div class="stat"><div class="n">45 / 63</div><div class="l">Deliverables built</div></div>
+  <div class="stat"><div class="n">5 / 12</div><div class="l">Acceptance criteria met</div></div>
+  <div class="stat"><div class="n">4</div><div class="l">Verified by running it</div></div>
+  <div class="stat"><div class="n">5</div><div class="l">Open decisions for the owner</div></div>
+</div>
+
+<div class="card">
+  <div class="progress-shell" role="img" aria-label="45 of 63 deliverables built, 6 in progress, 11 not started, 1 waiting on a decision">
+    <span style="width:71.43%;background:var(--built-dot)"></span>
+    <span style="width:9.52%;background:var(--progress-dot)"></span>
+    <span style="width:17.46%;background:var(--todo-dot)"></span>
+    <span style="width:1.59%;background:var(--blocked-dot)"></span>
+  </div>
+  <div class="progress-legend">
+    <span><b>45</b> Built</span>
+    <span><b>6</b> In progress</span>
+    <span><b>11</b> Not started</span>
+    <span><b>1</b> Needs a decision</span>
+    <span><b>63</b> total tracked deliverables</span>
+  </div>
+  <p style="margin:12px 0 0; font-size:13.5px; color:var(--text-muted)">
+    <b>Read that 71% carefully.</b> It counts deliverables, not value, and the
+    deliverables are not the same size. The 45 built items are the whole visible
+    product — every page, every component, the design system, the bilingual layer and
+    the money arithmetic. Among the 12 that are not built sit four rows that read
+    <em>database schema</em>, <em>real authentication</em>, <em>payment capture</em>
+    and <em>replace the seed layer with queries</em>. Those four are most of the
+    remaining engineering effort and all of the remaining risk, and on this bar they
+    are four segments the same width as a 404 page. A progress bar cannot show that,
+    so this paragraph does.
+  </p>
+  <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
+    The honest summary is that the front half of the product is finished and the back
+    half has not started. That is a reasonable place to be — the screens settle what
+    the database has to store, and <code>src/lib/types.ts</code> was written as that
+    schema in advance — but it means the next phase is not more building of the same
+    kind. It is a different kind of work, with credentials, a hosting bill and a
+    legal entity attached.
+  </p>
+  <p style="margin:14px 0 0; font-size:13.5px; color:var(--text-muted)">
+    <b>The denominator is deliberately unflattering.</b> Backend, auth, payments,
+    tests and lint are counted as tracked deliverables rather than left off the list,
+    so the ratio reflects the distance to a product people can actually book through
+    — not the distance to a finished prototype, which is already covered.
+  </p>
+</div>
+
+<h2>1 · What this project is</h2>
+
+<p class="lead">
+  In Cameroon, catering for a wedding, a funeral or a church event is arranged through
+  WhatsApp groups, phone calls and personal recommendation. Prices are quoted verbally,
+  there is no record of what was agreed, deposits change hands informally, and a customer
+  outside the recommender's network has no way to compare one caterer against another.
+</p>
+<p class="lead">
+  This platform replaces that with a structured booking and quotation flow: a searchable
+  directory of verified caterers, packages priced per guest in FCFA, a written quote, a
+  deposit paid through Mobile Money, and a review that can only be left against a completed
+  booking. The platform takes a commission on each successful booking.
+</p>
+<p class="lead">
+  It is explicitly not a food-delivery application. Nothing in the product moves food; it
+  moves agreements about food.
+</p>
+
+<h3>The change being made</h3>
+<div class="flow">Today:&nbsp;&nbsp;&nbsp;Customer → WhatsApp group → whoever answers → verbal price → cash deposit</div>
+<div style="height:8px"></div>
+<div class="flow">Proposed: Customer → Marketplace → compare verified caterers → written quote → MoMo deposit</div>
+
+<h2>2 · How the scope was narrowed</h2>
+
+<p class="lead">The marketplace idea could extend to every event service in the country.
+The MVP deliberately does not.</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Area</th><th>Direction taken</th></tr></thead>
+  <tbody>
+    <tr><td class="item">Primary problem</td><td class="note">Replace informal WhatsApp catering arrangements with a structured booking and quotation platform.</td></tr>
+    <tr><td class="item">Not the problem</td><td class="note">Food delivery. No logistics, no couriers, no real-time order tracking.</td></tr>
+    <tr><td class="item">Initial priority</td><td class="note">Discovery, quotation, booking, deposit, review. Everything else waits.</td></tr>
+    <tr><td class="item">Revenue</td><td class="note">10&ndash;15% booking commission, plus featured listings, Premium subscriptions and add-on commissions.</td></tr>
+    <tr><td class="item">Money</td><td class="note">FCFA (XAF) everywhere, whole numbers. Deposit-first, balance on the day.</td></tr>
+    <tr><td class="item">Payment rails</td><td class="note">MTN MoMo and Orange Money front and centre; bank transfer for large events; cash discouraged and flagged.</td></tr>
+    <tr><td class="item">Language</td><td class="note">English and French throughout, toggled in the navbar. Cameroon is officially bilingual; a single-language product excludes half the market.</td></tr>
+    <tr><td class="item">Device</td><td class="note">Mobile-first. Most users reach this on a phone, often on a slow connection.</td></tr>
+    <tr><td class="item">Images</td><td class="note">No external image or CDN dependency in the MVP. Placeholder art is CSS gradient plus emoji, seeded per caterer, so the app is fast and fully self-contained.</td></tr>
+    <tr><td class="item">Data</td><td class="note">Seed data in <code>src/data</code> stands in for a database, shaped to the types that database will use.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>3 · Roles</h2>
+
+<p class="lead">Three roles, no hierarchy between customers and caterers. A full breakdown
+of what each may do — and what the eventual database must enforce rather than trust the UI
+to enforce — is in <code>Documentation/ROLE_MODEL.md</code>.</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Role</th><th>Can do</th><th>Status in the MVP</th></tr></thead>
+  <tbody>
+    <tr><td class="item">Customer</td><td class="note">Search and compare caterers, request quotes, compare offers, pay a deposit, track bookings, review a completed event.</td><td class="note">All screens built. No account, no persistence.</td></tr>
+    <tr><td class="item">Caterer</td><td class="note">Submit a business for verification, publish packages and a menu, receive quote requests, track bookings and earnings, buy featured placement or Premium.</td><td class="note">Dashboard and onboarding built. Upsell buttons are inert.</td></tr>
+    <tr><td class="item">Admin</td><td class="note">Approve or reject caterer applications, monitor GMV and commission, see open quotes and disputes, manage featured listings.</td><td class="note">Dashboard built. Approve and reject currently do the same thing.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>4 · Architecture</h2>
+
+<h3>Technical direction as built</h3>
+<ul class="clean">
+  <li><strong>Next.js 14, App Router, TypeScript, Tailwind.</strong> Three runtime dependencies in total: <code>next</code>, <code>react</code>, <code>react-dom</code>. Nothing else ships to the browser.</li>
+  <li><strong>UI in <code>src/components</code>, data in <code>src/data</code>, domain logic and types in <code>src/lib</code>.</strong> The separation is kept — no component reaches past the data helpers, and no data module imports a component.</li>
+  <li><strong>Interactive pages are client components.</strong> The five that read <code>useSearchParams</code> — browse, quote, offers, checkout and review — are each split into a thin server <code>page.tsx</code> that wraps a <code>*Client.tsx</code> in <code>&lt;Suspense&gt;</code>, which is what App Router requires.</li>
+  <li><strong>One dynamic route.</strong> <code>/caterers/[id]</code> is server-rendered on demand; every other page, and the 404, prerenders as static content. Once there is a database, that route is the natural first place to fetch from.</li>
+  <li><strong>The seed layer is the only seam.</strong> Every page reads through the exported helpers in <code>src/data</code> — <code>getCaterer</code>, <code>reviewsFor</code>, <code>catererBookings</code>, <code>totalCommission</code>. Replacing those function bodies with queries is most of the backend migration.</li>
+</ul>
+
+<h3>Why the types came first</h3>
+<p class="lead">
+  <code>src/lib/types.ts</code> is not a convenience file for the UI. It was written as the
+  eventual database schema — users, customers, caterers, bookings, quote requests, reviews,
+  payments, messages, featured listings, subscriptions and add-on services — and the seed
+  data was then written to satisfy it. The effect is that the prototype has already been
+  forced to answer schema questions that are expensive to answer late: what a booking
+  reference looks like, whether commission is stored per booking or derived, how
+  availability is represented, and what a package is separate from a menu item.
+</p>
+<p class="lead">
+  The cost of that decision is that the types are ahead of the code in places. <code>User</code>,
+  <code>payments</code>, <code>messages</code>, <code>featured_listings</code> and
+  <code>subscriptions</code> are described in the type file and referenced in the README, but
+  no screen persists any of them. That is intentional, and it is the map for the backend work
+  rather than a claim about it.
+</p>
+
+<h3>Why no backend yet</h3>
+<p class="lead">
+  Choosing Supabase or Firebase is a decision with a cost attached, and it is better made
+  once the screens have settled what the data has to look like — which they now have. The
+  analysis, with a recommendation, is in <code>Documentation/BACKEND_DECISION.md</code>. It
+  is a decision, not a research task; the research is done.
+</p>
+
+<h2>5 · Money model as implemented</h2>
+
+<p class="lead">The commercial model is not a slide. It is computed in code, on every screen
+that shows a number.</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Rule</th><th>Where it lives</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td class="item">Booking commission band</td><td class="note"><code>src/lib/format.ts</code></td><td class="note">10% minimum, 15% maximum</td></tr>
+    <tr><td class="item">Default commission</td><td class="note"><code>DEFAULT_COMMISSION</code></td><td class="note">12%</td></tr>
+    <tr><td class="item">Deposit to confirm a booking</td><td class="note"><code>DEPOSIT_RATE</code></td><td class="note">30% of the package total, rounded to 50 FCFA</td></tr>
+    <tr><td class="item">Premium subscription</td><td class="note">Caterer dashboard</td><td class="note">15,000 FCFA / month — lower commission (10%), featured placement, Premium badge</td></tr>
+    <tr><td class="item">Featured listing</td><td class="note">Caterer dashboard</td><td class="note">10,000 FCFA for 7 days at the top of search</td></tr>
+    <tr><td class="item">Add-on commission</td><td class="note"><code>src/data/addons.ts</code></td><td class="note">Cakes, drinks, waitstaff, chairs, tables, décor, rentals — per-guest items scale with headcount, the rest are flat</td></tr>
+    <tr><td class="item">Currency formatting</td><td class="note"><code>formatFCFA</code> / <code>formatFCFACompact</code></td><td class="note">Whole FCFA, locale-grouped, no centimes</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="lead" style="margin-top:14px">
+  The two subscription prices above are the only numbers in the product that are written
+  into a page instead of into <code>src/lib</code>. They should move before billing is built,
+  or they will be changed in one place and not the other.
+</p>
+
+<h2>6 · Explicitly outside the MVP</h2>
+
+<ul class="clean">
+  <li><strong>Food delivery and logistics.</strong> Never in scope.</li>
+  <li><strong>Real photographs.</strong> Placeholder art is deliberate until a storage bucket exists; it keeps the app dependency-free and fast.</li>
+  <li><strong>In-app messaging.</strong> Replaced in the MVP by WhatsApp deep links and a contact form, which is where these conversations actually happen in Cameroon.</li>
+  <li><strong>The expansion services</strong> surfaced in the UI — photographers, DJs, lighting, cleanup, transport, full event planning — are a roadmap shown to caterers, not a built feature.</li>
+  <li><strong>A third language.</strong> EN and FR cover the official languages; nothing else is planned.</li>
+  <li><strong>Native applications.</strong> Web-first, mobile-first, and that is the whole distribution plan for the MVP.</li>
+</ul>
+
+<h2>7 · Deliverables</h2>
+
+<p class="lead">
+  Colour tells you where each item stands.
+  <span class="pill built">Built</span> code-complete and rendering.
+  <span class="pill progress">In progress</span> partially done or simulated.
+  <span class="pill todo">Not started</span> not begun.
+  <span class="pill blocked">Needs a decision</span> waiting on the owner.
+</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Deliverable</th><th>Status</th><th>Notes</th></tr></thead>
+  <tbody>
+
+    <tr class="group-head"><td colspan="3">A — Foundation and design system</td></tr>
+    <tr><td class="item">Next.js 14 App Router project</td><td class="status"><span class="pill built">Built</span></td><td class="note">TypeScript, Tailwind, <code>@/</code> path alias, React strict mode.</td></tr>
+    <tr><td class="item">TypeScript configuration</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>tsc --noEmit</code> exits clean across all 47 source modules.</span></td></tr>
+    <tr><td class="item">Tailwind design system</td><td class="status"><span class="pill built">Built</span></td><td class="note">Warm green + gold + ink palette drawn from the Cameroonian flag without using the flag literally. Shared <code>card</code>, <code>chip</code>, <code>field</code>, <code>btn-*</code> primitives.</td></tr>
+    <tr><td class="item">Root layout</td><td class="status"><span class="pill built">Built</span></td><td class="note">I18n provider wrapping navbar, page and footer.</td></tr>
+    <tr><td class="item">Responsive navbar</td><td class="status"><span class="pill built">Built</span></td><td class="note">Active-route highlighting, mobile menu, language toggle, sign-in and quote CTAs.</td></tr>
+    <tr><td class="item">Footer</td><td class="status"><span class="pill built">Built</span></td><td class="note">Carries a visible demo badge, which is correct while the data is invented.</td></tr>
+    <tr><td class="item">Dependency-free placeholder art</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>FoodArt.tsx</code> — CSS gradient plus cuisine emoji, seeded by <code>brandHue</code> so each caterer's art is stable across renders. No CDN, no image budget.</td></tr>
+    <tr><td class="item">404 page</td><td class="status"><span class="pill built">Built</span></td><td class="note">Bilingual, with a route back into browse.</td></tr>
+
+    <tr class="group-head"><td colspan="3">B — Domain model and seed data</td></tr>
+    <tr><td class="item">Domain types</td><td class="status"><span class="pill built">Built</span></td><td class="note">170 lines mirroring eleven eventual tables. Single source of truth for UI, seed data and future queries.</td></tr>
+    <tr><td class="item">Caterer seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">8 caterers across Douala, Yaoundé, Bamenda, Buea and Limbe, each with packages, menu, gallery labels and booked dates.</td></tr>
+    <tr><td class="item">Review seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">12 reviews, all flagged as verified bookings, bilingual comments.</td></tr>
+    <tr><td class="item">Booking and quote-request seed data</td><td class="status"><span class="pill built">Built</span></td><td class="note">10 rows spanning every <code>BookingStatus</code> from <code>quote_requested</code> to <code>disputed</code>, so each dashboard state is reachable.</td></tr>
+    <tr><td class="item">Add-on services</td><td class="status"><span class="pill built">Built</span></td><td class="note">8 add-ons plus the expansion-services roadmap.</td></tr>
+    <tr><td class="item">Query helpers over the seed layer</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>getCaterer</code>, <code>featuredCaterers</code>, <code>reviewsFor</code>, <code>catererBookings</code>, <code>totalGmv</code>, <code>totalCommission</code>. These are the functions the backend replaces.</td></tr>
+
+    <tr class="group-head"><td colspan="3">C — Discovery funnel</td></tr>
+    <tr><td class="item">Home page</td><td class="status"><span class="pill built">Built</span></td><td class="note">Hero search, featured caterers, how-it-works, trust signals, event-type entry points, CTA.</td></tr>
+    <tr><td class="item">Hero search</td><td class="status"><span class="pill built">Built</span></td><td class="note">City, event type and guest count, passed to browse as URL state.</td></tr>
+    <tr><td class="item">Browse directory with filters</td><td class="status"><span class="pill built">Built</span></td><td class="note">City, cuisine, guest count, max budget per guest, verified-only. Filter state seeds from the URL so a homepage search arrives pre-filtered.</td></tr>
+    <tr><td class="item">Sorting</td><td class="status"><span class="pill built">Built</span></td><td class="note">Recommended, rating, price low-to-high, price high-to-low.</td></tr>
+    <tr><td class="item">Caterer card</td><td class="status"><span class="pill built">Built</span></td><td class="note">Art, verification and featured badges, rating, price range, response time.</td></tr>
+    <tr><td class="item">Caterer profile</td><td class="status"><span class="pill built">Built</span></td><td class="note">About, cuisines, packages, menu, gallery, reviews, availability, WhatsApp contact.</td></tr>
+    <tr><td class="item">Availability calendar</td><td class="status"><span class="pill built">Built</span></td><td class="note">Renders <code>bookedDates</code> as unavailable. Read-only — a caterer cannot yet block a date from the product.</td></tr>
+    <tr><td class="item">Packages and menu display</td><td class="status"><span class="pill built">Built</span></td><td class="note">Per-guest pricing at the 20 / 50 / 100 / 200 bundle sizes, with highlights and a service-included flag.</td></tr>
+
+    <tr class="group-head"><td colspan="3">D — Quote → offer → booking</td></tr>
+    <tr><td class="item">Quote request form</td><td class="status"><span class="pill built">Built</span></td><td class="note">Event type, date, city, guests, cuisine, budget, add-ons, special requests.</td></tr>
+    <tr><td class="item">Live FCFA estimate</td><td class="status"><span class="pill built">Built</span></td><td class="note">Recomputes as the form changes. Per-guest add-ons (drinks, waitstaff, chairs, tables) scale with headcount; the rest stay flat — which is the correct real-world behaviour.</td></tr>
+    <tr><td class="item">Quote request reaches a caterer</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The form sets local state and renders a success card. Nothing is stored, sent or queued. This is the single biggest gap between the demo and a product.</td></tr>
+    <tr><td class="item">Compare offers</td><td class="status"><span class="pill built">Built</span></td><td class="note">Simulates the replies a quote request would attract, with an indicative total per caterer that respects the stated budget when it falls inside that caterer's range, and falls back to any caterer who can handle the headcount so the page is never empty.</td></tr>
+    <tr><td class="item">Checkout — event and payment method</td><td class="status"><span class="pill built">Built</span></td><td class="note">MTN MoMo, Orange Money, bank transfer and cash, each with the right follow-up field or warning. Cash is explicitly discouraged in the UI.</td></tr>
+    <tr><td class="item">Deposit, balance and commission arithmetic</td><td class="status"><span class="pill built">Built</span></td><td class="note">30% deposit rounded to 50 FCFA, balance shown, commission applied at 12%. Pure functions, no tests.</td></tr>
+    <tr><td class="item">Payment capture</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">"Pay deposit" sets a boolean and shows a generated reference of the form <code>CCS-1234</code>. No provider is contacted. Blocked on a merchant account before it is blocked on code — see <code>Documentation/PAYMENTS.md</code>.</td></tr>
+
+    <tr class="group-head"><td colspan="3">E — Accounts and dashboards</td></tr>
+    <tr><td class="item">Login page</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Role picker routes to the matching dashboard. Any credentials are accepted and the page says so. Honest as a demo; not a login.</td></tr>
+    <tr><td class="item">Signup page</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Customers land on their dashboard, caterers are routed into <code>/caterers/join</code>. No account is created.</td></tr>
+    <tr><td class="item">Real authentication</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">No sessions, no password handling, no roles enforced anywhere. Every dashboard is publicly reachable by URL.</td></tr>
+    <tr><td class="item">Customer dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">Upcoming and past bookings, quote requests, deposit-pending prompts, links into review and checkout. Shows a fixed demo customer.</td></tr>
+    <tr><td class="item">Caterer dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">Incoming requests, bookings table, earnings and commission, rating, upsell sidebar. Shows a fixed demo caterer.</td></tr>
+    <tr><td class="item">Admin dashboard</td><td class="status"><span class="pill built">Built</span></td><td class="note">GMV, commission, approved and pending caterers, open quotes, disputes, featured count, recent reviews.</td></tr>
+    <tr><td class="item">Caterer approve / reject</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Both buttons call the same handler, which removes the row from local state. Approving and rejecting are therefore indistinguishable, and a refresh restores the queue. The screen is right; the action is not.</td></tr>
+    <tr><td class="item">Featured listing and Premium purchase</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Both buttons render and neither has a handler. Two of the four revenue streams are presently unclickable.</td></tr>
+
+    <tr class="group-head"><td colspan="3">F — Reviews, onboarding, messaging</td></tr>
+    <tr><td class="item">Leave-a-review form</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Star rating, event type and comment, with a thank-you state that states plainly that nothing is published. Present in the code despite <code>CLAUDE.md</code> listing it as to-do.</td></tr>
+    <tr><td class="item">Reviews gated to real bookings</td><td class="status"><span class="pill built">Built</span></td><td class="note">The route takes a caterer and booking reference and is linked only from a completed booking, and shows a not-found state otherwise. The rule is modelled; nothing enforces it server-side yet.</td></tr>
+    <tr><td class="item">Caterer onboarding / profile builder</td><td class="status"><span class="pill progress">In progress</span></td><td class="note">Business details, city, cuisines, value proposition and a submitted-for-review state promising verification within 48h. Nothing is submitted, and no row reaches the admin queue.</td></tr>
+    <tr><td class="item">In-app messaging</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Deliberately out of the MVP.</td></tr>
+    <tr><td class="item">WhatsApp deep links and contact form</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>wa.me</code> links on caterer profiles and support pages — the channel these conversations actually use.</td></tr>
+
+    <tr class="group-head"><td colspan="3">G — Content and trust</td></tr>
+    <tr><td class="item">About</td><td class="status"><span class="pill built">Built</span></td><td class="note">Positioning, market rationale, how the platform makes money.</td></tr>
+    <tr><td class="item">Contact</td><td class="status"><span class="pill built">Built</span></td><td class="note">Form plus WhatsApp and phone. States that no message is sent.</td></tr>
+    <tr><td class="item">FAQ</td><td class="status"><span class="pill built">Built</span></td><td class="note">Deposits, cancellation, verification, payment methods.</td></tr>
+    <tr><td class="item">Legal</td><td class="status"><span class="pill built">Built</span></td><td class="note">Terms and privacy placeholders that say in both languages that they are placeholders and must be replaced by professionally drafted terms before launch. Correct and necessary.</td></tr>
+    <tr><td class="item">Verified and featured badges</td><td class="status"><span class="pill built">Built</span></td><td class="note">The visible half of the trust model. The verification behind the badge is an admin action that does not yet persist.</td></tr>
+
+    <tr class="group-head"><td colspan="3">H — Bilingual EN / FR</td></tr>
+    <tr><td class="item">I18n context and toggle</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>useI18n()</code> with a navbar toggle; switching is instant and does not navigate.</td></tr>
+    <tr><td class="item">EN / FR dictionary</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> 199 keys in English and 199 in French, with zero keys present in one language and absent from the other. Exact parity.</span></td></tr>
+    <tr><td class="item">Enum label maps</td><td class="status"><span class="pill built">Built</span></td><td class="note">Event types, cuisines, payment methods and booking statuses all have bilingual label maps rather than ad-hoc strings.</td></tr>
+    <tr><td class="item">All user-facing strings via <code>t()</code></td><td class="status"><span class="pill progress">In progress</span></td><td class="note"><span style="font-size:12.5px;color:var(--progress-fg)"><b>Measured 19 September.</b> 94 inline <code>fr ? … : …</code> ternaries across 9 files bypass the dictionary: <code>/caterers/join</code> 27, <code>/contact</code> 14, <code>/signup</code> 13, <code>/login</code> 11, <code>/about</code> 8, <code>/review</code> 6, <code>/legal</code> 6, <code>/faq</code> 5, <code>/offers</code> 4. Both languages render correctly; the architecture rule does not hold.</span></td></tr>
+
+    <tr class="group-head"><td colspan="3">I — Money and locale formatting</td></tr>
+    <tr><td class="item">FCFA formatting</td><td class="status"><span class="pill built">Built</span></td><td class="note">Full and compact forms, locale-grouped, whole numbers only.</td></tr>
+    <tr><td class="item">Commission and deposit constants</td><td class="status"><span class="pill built">Built</span></td><td class="note">Band, default and deposit rate in one module, consumed everywhere.</td></tr>
+    <tr><td class="item">Locale-aware dates</td><td class="status"><span class="pill built">Built</span></td><td class="note"><code>fr-FR</code> and <code>en-GB</code> formatting — day-month-year in both, which is what Cameroon expects.</td></tr>
+
+    <tr class="group-head"><td colspan="3">J — Backend, persistence and delivery</td></tr>
+    <tr><td class="item">Database schema</td><td class="status"><span class="pill blocked">Needs a decision</span></td><td class="note">Designed in <code>src/lib/types.ts</code>, not created anywhere. Blocked on the Supabase / Firebase choice — <code>Documentation/BACKEND_DECISION.md</code>.</td></tr>
+    <tr><td class="item">Replace the seed layer with queries</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">The seam is clean and the helper signatures are already the right shape, so this is mechanical once the database exists.</td></tr>
+    <tr><td class="item">Photo storage and upload</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">Placeholder art is good enough to demonstrate and not good enough to sell with. Needs a bucket, an upload UI and a size budget.</td></tr>
+    <tr><td class="item">Notifications</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">A quote request nobody is told about is not a quote request. WhatsApp Business API or SMS, and it is arguably more urgent than photographs.</td></tr>
+
+    <tr class="group-head"><td colspan="3">K — Quality and release engineering</td></tr>
+    <tr><td class="item">Production build</td><td class="status"><span class="pill built">Built</span></td><td class="note"><span style="font-size:12.5px;color:var(--built-fg)"><b>Verified 19 September.</b> <code>npm run build</code> succeeds on Next.js 14.2.15: 18 route entries — 17 pages plus the 404 — of which 17 prerender as static content and one (<code>/caterers/[id]</code>) is server-rendered on demand. Next reports 19 static pages generated. 87.1 kB shared JS; the heaviest route is the home page at 114 kB first load — a defensible budget for a mobile-first product on a slow connection.</span></td></tr>
+    <tr><td class="item">Typecheck</td><td class="status"><span class="pill built">Built</span></td><td class="note">Runs as part of the build and standalone. Clean.</td></tr>
+    <tr><td class="item">Working lint setup</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><span style="font-size:12.5px;color:var(--progress-fg)"><b>Verified broken 19 September.</b> No ESLint configuration file and no ESLint dependency exist. <code>npm run lint</code> enters <code>next lint</code>'s interactive setup prompt and lints nothing. Documented as a working command in both <code>README.md</code> and <code>CLAUDE.md</code>.</span></td></tr>
+    <tr><td class="item">Automated tests</td><td class="status"><span class="pill todo">Not started</span></td><td class="note">No test runner, no test files, no coverage. The commission and deposit functions are the obvious first target and the cheapest.</td></tr>
+    <tr><td class="item">Deployment</td><td class="status"><span class="pill todo">Not started</span></td><td class="note"><code>vercel.json</code> pins the framework. No deployment has been made or confirmed. See <code>Documentation/DEPLOYMENT.md</code>.</td></tr>
+
+  </tbody>
+</table>
+</div>
+
+<h2>8 · Acceptance criteria for a bookable beta</h2>
+
+<p class="lead">These are the twelve statements that have to be true before a real customer can
+book a real caterer. They are written as outcomes a person can check, not as features.</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Criterion</th><th>Status</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="item">A customer can find caterers by city, event type and headcount</td><td class="status"><span class="pill built">Met</span></td><td class="note">Home search seeds browse filters; sorting and a verified-only filter work.</td></tr>
+    <tr><td class="item">A caterer profile shows packages, menu, reviews and availability</td><td class="status"><span class="pill built">Met</span></td><td class="note">All four present, priced per guest in FCFA.</td></tr>
+    <tr><td class="item">A customer can send a quote request</td><td class="status"><span class="pill progress">Partial</span></td><td class="note">The form works and estimates correctly. The request goes nowhere.</td></tr>
+    <tr><td class="item">The caterer receives that request</td><td class="status"><span class="pill todo">Not met</span></td><td class="note">Needs persistence and notifications.</td></tr>
+    <tr><td class="item">A customer can compare competing offers</td><td class="status"><span class="pill built">Met</span></td><td class="note">Side-by-side with indicative totals, honouring the stated budget where it fits the caterer's range.</td></tr>
+    <tr><td class="item">A customer can pay a deposit by MoMo or Orange Money</td><td class="status"><span class="pill todo">Not met</span></td><td class="note">Screen complete, no provider call. Blocked on a merchant account.</td></tr>
+    <tr><td class="item">A booking survives a page refresh</td><td class="status"><span class="pill todo">Not met</span></td><td class="note">All state is React state. This is the one-line summary of what the backend is for.</td></tr>
+    <tr><td class="item">A customer can review a completed booking</td><td class="status"><span class="pill progress">Partial</span></td><td class="note">Form built and correctly gated by route; the review is not stored or published.</td></tr>
+    <tr><td class="item">A caterer can join and be verified by an admin</td><td class="status"><span class="pill progress">Partial</span></td><td class="note">Both screens exist; the application never reaches the queue, and approval does not persist.</td></tr>
+    <tr><td class="item">The whole product works in English and French</td><td class="status"><span class="pill built">Met</span></td><td class="note">Dictionary at parity and every page renders in both. The 94 inline ternaries are a maintainability problem, not a coverage gap.</td></tr>
+    <tr><td class="item">Every amount is shown in FCFA, whole numbers</td><td class="status"><span class="pill built">Met</span></td><td class="note">Enforced by going through <code>formatFCFA</code> everywhere.</td></tr>
+    <tr><td class="item">The app is usable on a mid-range phone on a slow connection</td><td class="status"><span class="pill progress">Partial</span></td><td class="note">Built for it — mobile-first layout, three dependencies, no images, 87 kB shared JS — but never measured on a real device or a throttled connection.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>9 · Open decisions for the owner</h2>
+
+<p class="lead">Five questions that engineering cannot answer for itself. Each one blocks
+work that is otherwise ready to start. The detail is in
+<code>Documentation/OPEN_REQUESTS.md</code>.</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Decision</th><th>What it blocks</th></tr></thead>
+  <tbody>
+    <tr><td class="item">Supabase or Firebase</td><td class="note">The entire backend phase. Both fit; they differ in how the data is queried and how permissions are expressed. A recommendation with reasoning is written up and waiting.</td></tr>
+    <tr><td class="item">Payment route — aggregator or direct</td><td class="note">Deposit collection, and with it the revenue model. A direct MTN and Orange integration is cheaper per transaction and requires a registered business, a merchant account and KYC. An aggregator is faster to launch and takes a cut of a cut.</td></tr>
+    <tr><td class="item">Launch commission rate, and who pays it</td><td class="note">Caterer recruitment and every price shown on the platform. The code defaults to 12% charged to the caterer; 10%, 15%, or splitting it with the customer are all supported by the constants but change the pitch entirely.</td></tr>
+    <tr><td class="item">Launch city and first caterers</td><td class="note">A marketplace with no caterers has nothing to show. Douala and Yaoundé are the obvious candidates; whichever is chosen needs real caterers signed up before the platform is worth opening to customers.</td></tr>
+    <tr><td class="item">Product name, domain and legal entity</td><td class="note">Deployment, the legal pages, and anything printed on a receipt. "Cameroon Catering Service" is a working title, and the terms and privacy pages are explicitly placeholders that must be professionally drafted before launch.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>10 · Immediate next steps</h2>
+
+<p class="lead">In order. The first three are cheap, unblocked, and can be done today; the
+rest depend on decisions above.</p>
+
+<ul class="clean">
+  <li><strong>Fix the lint setup.</strong> Add <code>eslint</code> and
+    <code>eslint-config-next</code> and an <code>.eslintrc</code>, so the command both
+    files already document actually runs. Then run it once and see what it says about
+    5,700 lines that have never been linted.</li>
+  <li><strong>Test the money.</strong> <code>formatFCFA</code>, the 30% deposit rounding
+    and the 12% commission are pure functions with no dependencies. A handful of
+    assertions around them is the highest-value hour available on this project.</li>
+  <li><strong>Reconcile <code>CLAUDE.md</code> with the code.</strong> Add the five
+    undocumented routes to its page list, and move the review form and caterer
+    onboarding out of the to-do list into a "simulated, needs a backend" section, where
+    they honestly belong.</li>
+  <li><strong>Decide the backend</strong> and create the schema from
+    <code>src/lib/types.ts</code>. The types have already done the design work.</li>
+  <li><strong>Make one flow real, end to end</strong> before making all of them real:
+    quote request → stored → caterer notified → caterer replies. That single path
+    exercises the database, auth and notifications together, and it is the flow the
+    business runs on.</li>
+  <li><strong>Then authentication</strong>, so the three dashboards stop being public
+    URLs showing fixed demo users.</li>
+  <li><strong>Then payments</strong>, once there is a merchant account to test against.
+    Write the bank-transfer reference flow first — it needs no provider integration and
+    it is what large weddings will actually use.</li>
+  <li><strong>Close the two dead buttons.</strong> Featured listings and Premium are two
+    of the four stated revenue streams and neither is clickable. Either wire them to
+    billing or take them off the screen until they work.</li>
+  <li><strong>Move the 94 inline ternaries into the dictionary</strong> before the string
+    count grows. This gets harder every time a page is added.</li>
+</ul>
+
+<footer>
+  Reflects the repository at commit <code>605f2d2</code> on branch <code>dev</code>,
+  read and built on 19 September 2026. Four claims on this page were verified by running
+  the toolchain rather than by reading the code; they are marked in place.
+  Update this page whenever a deliverable status changes, and keep "Built" and
+  "Working" separate as the backend lands.
+</footer>
+
+</div>
+</body>
+</html>
