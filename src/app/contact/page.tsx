@@ -5,8 +5,7 @@ import { useI18n } from "@/context/I18nContext";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export default function ContactPage() {
-  const { locale } = useI18n();
-  const fr = locale === "fr";
+  const { t, locale } = useI18n();
   const [sent, setSent] = useState(false);
 
   return (
@@ -14,12 +13,10 @@ export default function ContactPage() {
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-ink sm:text-3xl">
-            {fr ? "Contact & support" : "Contact & support"}
+            {t("contact.title")}
           </h1>
           <p className="mt-2 text-ink-soft">
-            {fr
-              ? "Une question ? Notre équipe répond en anglais et en français."
-              : "Have a question? Our team replies in English and French."}
+            {t("contact.subtitle")}
           </p>
         </div>
 
@@ -30,15 +27,13 @@ export default function ContactPage() {
               <div className="flex flex-col items-center gap-3 py-10 text-center">
                 <span className="text-4xl">✅</span>
                 <p className="font-semibold text-ink">
-                  {fr ? "Message envoyé !" : "Message sent!"}
+                  {t("contact.sent")}
                 </p>
                 <p className="text-sm text-ink-soft">
-                  {fr
-                    ? "Nous vous répondrons sous 24h. (Démo — aucun message réel.)"
-                    : "We'll reply within 24 hours. (Demo — no real message sent.)"}
+                  {t("contact.sentDesc")}
                 </p>
                 <button onClick={() => setSent(false)} className="btn-outline btn-sm">
-                  {fr ? "Envoyer un autre" : "Send another"}
+                  {t("contact.sendAnother")}
                 </button>
               </div>
             ) : (
@@ -51,21 +46,21 @@ export default function ContactPage() {
               >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="label">{fr ? "Nom" : "Name"}</label>
+                    <label className="label">{t("contact.name")}</label>
                     <input required className="field" placeholder="Jean Nkeng" />
                   </div>
                   <div>
-                    <label className="label">Email / {fr ? "Téléphone" : "Phone"}</label>
+                    <label className="label">Email / {t("signup.phone")}</label>
                     <input required className="field" placeholder="+237 6XX XXX XXX" />
                   </div>
                 </div>
                 <div>
-                  <label className="label">{fr ? "Sujet" : "Subject"}</label>
+                  <label className="label">{t("contact.subject")}</label>
                   <select className="field">
-                    <option>{fr ? "Question générale" : "General question"}</option>
-                    <option>{fr ? "Problème de réservation" : "Booking issue"}</option>
-                    <option>{fr ? "Devenir traiteur" : "Become a caterer"}</option>
-                    <option>{fr ? "Litige / remboursement" : "Dispute / refund"}</option>
+                    <option>{t("contact.subjectGeneral")}</option>
+                    <option>{t("contact.subjectBooking")}</option>
+                    <option>{t("contact.subjectCaterer")}</option>
+                    <option>{t("contact.subjectDispute")}</option>
                   </select>
                 </div>
                 <div>
@@ -73,7 +68,7 @@ export default function ContactPage() {
                   <textarea required className="field min-h-[120px]" />
                 </div>
                 <button type="submit" className="btn-primary w-full">
-                  {fr ? "Envoyer le message" : "Send message"}
+                  {t("contact.send")}
                 </button>
               </form>
             )}
@@ -82,21 +77,19 @@ export default function ContactPage() {
           {/* Direct channels */}
           <aside className="space-y-4">
             <div className="card p-5">
-              <h3 className="font-bold text-ink">{fr ? "Canaux directs" : "Direct channels"}</h3>
+              <h3 className="font-bold text-ink">{t("contact.channels")}</h3>
               <ul className="mt-3 space-y-3 text-sm text-ink-soft">
                 <li className="flex items-center gap-2">📞 +237 6 99 00 11 22</li>
                 <li className="flex items-center gap-2">✉️ hello@cameroon-catering.cm</li>
                 <li className="flex items-center gap-2">📍 Douala & Yaoundé, Cameroon</li>
-                <li className="flex items-center gap-2">🕐 {fr ? "Lun–Sam, 8h–20h" : "Mon–Sat, 8am–8pm"}</li>
+                <li className="flex items-center gap-2">🕐 {t("contact.hours")}</li>
               </ul>
               <WhatsAppButton phone="237699001122" className="mt-4 w-full" />
             </div>
             <div className="rounded-2xl bg-brand-950 p-5 text-white">
-              <p className="text-sm font-bold">💬 {fr ? "Réponse la plus rapide" : "Fastest response"}</p>
+              <p className="text-sm font-bold">💬 {t("contact.fastest")}</p>
               <p className="mt-1.5 text-sm text-brand-100/80">
-                {fr
-                  ? "WhatsApp est notre canal le plus rapide — la plupart des messages reçoivent une réponse en moins d'une heure."
-                  : "WhatsApp is our fastest channel — most messages get a reply within the hour."}
+                {t("contact.fastestDesc")}
               </p>
             </div>
           </aside>

@@ -16,7 +16,6 @@ import { Monogram } from "@/components/FoodArt";
  */
 export function ReviewClient() {
   const { t, locale } = useI18n();
-  const fr = locale === "fr";
   const params = useSearchParams();
   const caterer = getCaterer(params.get("caterer") ?? "");
   const bookingRef = params.get("booking");
@@ -31,7 +30,7 @@ export function ReviewClient() {
     return (
       <div className="container-page py-20 text-center">
         <p className="text-ink-soft">
-          {fr ? "Réservation introuvable." : "Booking not found."}
+          {t("review.notFound")}
         </p>
         <Link href="/dashboard/customer" className="btn-primary mt-4 inline-flex">
           {t("nav.dashboard")}
@@ -48,12 +47,10 @@ export function ReviewClient() {
             ⭐
           </div>
           <h1 className="mt-4 text-2xl font-bold text-ink">
-            {fr ? "Merci pour votre avis !" : "Thanks for your review!"}
+            {t("review.thanks")}
           </h1>
           <p className="mt-2 text-ink-soft">
-            {fr
-              ? "Votre avis aide d'autres familles à réserver en toute confiance. (Démo — rien n'est publié.)"
-              : "Your review helps other families book with confidence. (Demo — nothing is published.)"}
+            {t("review.thanksDesc")}
           </p>
           <div className="mt-5 flex items-center justify-center gap-1 text-2xl">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -75,9 +72,7 @@ export function ReviewClient() {
       <div className="mx-auto max-w-lg">
         <h1 className="text-2xl font-bold text-ink">{t("cta.leaveReview")}</h1>
         <p className="mt-1 text-ink-soft">
-          {fr
-            ? "Comment s'est passé votre événement ?"
-            : "How was your event?"}
+          {t("review.title")}
         </p>
 
         <div className="mt-6 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/50 p-3">
@@ -102,7 +97,7 @@ export function ReviewClient() {
         >
           {/* Star input */}
           <div>
-            <label className="label">{fr ? "Votre note" : "Your rating"}</label>
+            <label className="label">{t("review.yourRating")}</label>
             <div className="flex items-center gap-1.5">
               {Array.from({ length: 5 }).map((_, i) => {
                 const val = i + 1;
@@ -147,26 +142,24 @@ export function ReviewClient() {
           </div>
 
           <div>
-            <label className="label">{fr ? "Votre commentaire" : "Your comment"}</label>
+            <label className="label">{t("review.yourComment")}</label>
             <textarea
               required
               className="field min-h-[120px]"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={
-                fr
-                  ? "Qualité de la nourriture, ponctualité, service…"
-                  : "Food quality, punctuality, service…"
+                t("review.commentPlaceholder")
               }
             />
           </div>
 
           <button type="submit" disabled={rating === 0} className="btn-primary w-full">
-            {fr ? "Publier mon avis" : "Post my review"}
+            {t("review.submit")}
           </button>
           {rating === 0 && (
             <p className="text-center text-xs text-ink-faint">
-              {fr ? "Sélectionnez une note pour continuer." : "Select a rating to continue."}
+              {t("review.needRating")}
             </p>
           )}
         </form>

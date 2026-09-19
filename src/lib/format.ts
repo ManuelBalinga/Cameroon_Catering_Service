@@ -36,3 +36,39 @@ export const DEFAULT_COMMISSION = 0.12;
 
 /** Deposit customers pay up front to confirm a booking. */
 export const DEPOSIT_RATE = 0.3;
+
+/**
+ * Deposits are quoted to the nearest 50 FCFA — prices in Cameroon are not
+ * written to the franc. This rounding used to live inside the checkout
+ * component, which meant the platform's own deposit rule was defined by a page.
+ */
+export function depositFor(total: number, rate: number = DEPOSIT_RATE): number {
+  return Math.min(total, Math.round((total * rate) / 50) * 50);
+}
+
+/** What the customer still owes the caterer on the day of the event. */
+export function balanceAfterDeposit(
+  total: number,
+  rate: number = DEPOSIT_RATE
+): number {
+  return total - depositFor(total, rate);
+}
+
+/** The platform's cut of a completed booking, in whole FCFA. */
+export function commissionFor(
+  total: number,
+  rate: number = DEFAULT_COMMISSION
+): number {
+  return Math.round(total * rate);
+}
+
+/**
+ * Upsell pricing. These two lived in the caterer dashboard until 19 September —
+ * the only prices in the product that escaped this module.
+ */
+export const PREMIUM_MONTHLY_PRICE = 15_000;
+export const FEATURED_LISTING_PRICE = 10_000;
+export const FEATURED_LISTING_DAYS = 7;
+
+/** Premium caterers pay the bottom of the commission band instead of the default. */
+export const PREMIUM_COMMISSION = COMMISSION_MIN;

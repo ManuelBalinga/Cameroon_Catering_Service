@@ -59,7 +59,7 @@ export default function AdminDashboard() {
           <div className="mt-4 space-y-3">
             {pending.length === 0 && (
               <p className="rounded-xl bg-brand-50/60 p-4 text-center text-sm text-ink-soft">
-                🎉 {locale === "fr" ? "Aucune demande en attente." : "No pending approvals."}
+                🎉 {t("admin.noPending")}
               </p>
             )}
             {pending.map((c) => (

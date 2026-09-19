@@ -105,7 +105,7 @@ export function QuoteClient() {
           <div className="mt-6 flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50/60 p-3">
             <Monogram name={caterer.businessName} hue={caterer.brandHue} size={40} />
             <p className="text-sm text-ink-soft">
-              {locale === "fr" ? "Devis demandé à" : "Requesting a quote from"}{" "}
+              {t("quote.requestingFrom")}{" "}
               <span className="font-bold text-ink">{caterer.businessName}</span>
             </p>
           </div>

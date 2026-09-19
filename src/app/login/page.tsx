@@ -13,13 +13,12 @@ import type { UserRole } from "@/lib/types";
  */
 export default function LoginPage() {
   const { t, locale } = useI18n();
-  const fr = locale === "fr";
   const router = useRouter();
   const [role, setRole] = useState<UserRole>("customer");
 
   const roles: { key: UserRole; label: string; icon: string; dest: string }[] = [
-    { key: "customer", label: fr ? "Client" : "Customer", icon: "🎉", dest: "/dashboard/customer" },
-    { key: "caterer", label: fr ? "Traiteur" : "Caterer", icon: "👨‍🍳", dest: "/dashboard/caterer" },
+    { key: "customer", label: t("role.customer"), icon: "🎉", dest: "/dashboard/customer" },
+    { key: "caterer", label: t("role.caterer"), icon: "👨‍🍳", dest: "/dashboard/caterer" },
     { key: "admin", label: "Admin", icon: "🔐", dest: "/admin" },
   ];
 
@@ -37,17 +36,17 @@ export default function LoginPage() {
             🍲
           </span>
           <h1 className="mt-4 text-2xl font-bold text-ink">
-            {fr ? "Bon retour 👋" : "Welcome back 👋"}
+            {t("login.welcome")}
           </h1>
           <p className="mt-1 text-sm text-ink-soft">
-            {fr ? "Connectez-vous à votre compte" : "Sign in to your account"}
+            {t("login.subtitle")}
           </p>
         </div>
 
         <form onSubmit={submit} className="card mt-6 space-y-4 p-6">
           {/* Role selector */}
           <div>
-            <label className="label">{fr ? "Je suis un…" : "I am a…"}</label>
+            <label className="label">{t("login.iAmA")}</label>
             <div className="grid grid-cols-3 gap-2">
               {roles.map((r) => (
                 <button
@@ -68,21 +67,21 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="label">{fr ? "Email ou téléphone" : "Email or phone"}</label>
+            <label className="label">{t("login.identifier")}</label>
             <input required className="field" placeholder="+237 6XX XXX XXX" />
           </div>
           <div>
-            <label className="label">{fr ? "Mot de passe" : "Password"}</label>
+            <label className="label">{t("login.password")}</label>
             <input required type="password" className="field" placeholder="••••••••" />
           </div>
 
           <div className="flex items-center justify-between text-xs">
             <label className="flex items-center gap-1.5 text-ink-soft">
               <input type="checkbox" className="h-3.5 w-3.5 accent-brand-500" />
-              {fr ? "Se souvenir de moi" : "Remember me"}
+              {t("login.remember")}
             </label>
             <a className="font-semibold text-brand-600 hover:underline" href="#">
-              {fr ? "Mot de passe oublié ?" : "Forgot password?"}
+              {t("login.forgot")}
             </a>
           </div>
 
@@ -91,16 +90,14 @@ export default function LoginPage() {
           </button>
 
           <p className="rounded-lg bg-brand-50/60 p-2.5 text-center text-xs text-ink-faint">
-            {fr
-              ? "Démo — n'importe quels identifiants fonctionnent."
-              : "Demo — any credentials work."}
+            {t("login.demoHint")}
           </p>
         </form>
 
         <p className="mt-4 text-center text-sm text-ink-soft">
-          {fr ? "Nouveau ici ?" : "New here?"}{" "}
+          {t("login.newHere")}{" "}
           <Link href="/signup" className="font-semibold text-brand-600 hover:underline">
-            {fr ? "Créer un compte" : "Create an account"}
+            {t("login.createAccount")}
           </Link>
         </p>
       </div>

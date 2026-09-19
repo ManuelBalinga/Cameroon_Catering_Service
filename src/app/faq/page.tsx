@@ -36,8 +36,7 @@ const faqs = [
 ];
 
 export default function FaqPage() {
-  const { locale } = useI18n();
-  const fr = locale === "fr";
+  const { t, locale } = useI18n();
   const [open, setOpen] = useState<number | null>(0);
 
   return (
@@ -45,17 +44,17 @@ export default function FaqPage() {
       <div className="mx-auto max-w-2xl">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-ink sm:text-3xl">
-            {fr ? "Questions fréquentes" : "Frequently asked questions"}
+            {t("faq.title")}
           </h1>
           <p className="mt-2 text-ink-soft">
-            {fr ? "Tout ce qu'il faut savoir avant de réserver." : "Everything you need to know before booking."}
+            {t("faq.subtitle")}
           </p>
         </div>
 
         <div className="mt-8 space-y-3">
           {faqs.map((f, i) => {
             const isOpen = open === i;
-            const item = fr ? f.fr : f.en;
+            const item = f[locale];
             return (
               <div key={i} className="card overflow-hidden">
                 <button
@@ -84,10 +83,10 @@ export default function FaqPage() {
 
         <div className="mt-8 rounded-2xl bg-brand-50/60 p-6 text-center">
           <p className="font-semibold text-ink">
-            {fr ? "Vous ne trouvez pas votre réponse ?" : "Can't find your answer?"}
+            {t("faq.noAnswer")}
           </p>
           <Link href="/contact" className="btn-primary mt-3 inline-flex">
-            {fr ? "Contacter le support" : "Contact support"}
+            {t("faq.contactSupport")}
           </Link>
         </div>
       </div>

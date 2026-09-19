@@ -9,12 +9,19 @@ import { getCaterer } from "@/data/caterers";
 import { catererBookings, catererQuotes } from "@/data/bookings";
 import { addOns } from "@/data/addons";
 import { eventTypeLabels, statusLabels, cuisineLabels } from "@/lib/i18n";
-import { formatFCFA, formatDate } from "@/lib/format";
+import {
+  formatFCFA,
+  formatDate,
+  PREMIUM_MONTHLY_PRICE,
+  PREMIUM_COMMISSION,
+  FEATURED_LISTING_PRICE,
+  FEATURED_LISTING_DAYS,
+} from "@/lib/format";
 
 const DEMO_CATERER = "mamie-nkeng";
 
 export default function CatererDashboard() {
-  const { t, locale } = useI18n();
+  const { t, tf, locale } = useI18n();
   const caterer = getCaterer(DEMO_CATERER)!;
   const bookings = catererBookings(DEMO_CATERER);
   const quotes = catererQuotes(DEMO_CATERER);
@@ -153,25 +160,26 @@ export default function CatererDashboard() {
             <p className="text-sm font-bold text-gold-300">★ {t("cdash.upgrade")}</p>
             <p className="mt-2 text-sm text-white/80">{t("cdash.upgradeDesc")}</p>
             <ul className="mt-3 space-y-1.5 text-sm text-white/90">
-              <li>✓ {locale === "fr" ? "Placement à la une" : "Featured placement"}</li>
-              <li>✓ {locale === "fr" ? "Commission réduite (10%)" : "Lower commission (10%)"}</li>
-              <li>✓ {locale === "fr" ? "Badge Premium" : "Premium badge"}</li>
+              <li>✓ {t("cdash.premiumFeatured")}</li>
+              <li>
+                ✓ {t("cdash.premiumLowerCommission")} (
+                {Math.round(PREMIUM_COMMISSION * 100)}%)
+              </li>
+              <li>✓ {t("cdash.premiumBadge")}</li>
             </ul>
             <button className="btn-gold mt-4 w-full">{t("cdash.upgrade")}</button>
             <p className="mt-2 text-center text-xs text-white/50">
-              15 000 FCFA / {locale === "fr" ? "mois" : "month"}
+              {formatFCFA(PREMIUM_MONTHLY_PRICE, locale)} / {t("cdash.perMonth")}
             </p>
           </div>
 
           <div className="card p-5">
             <p className="text-sm font-bold text-ink">🚀 {t("cdash.feature")}</p>
             <p className="mt-2 text-sm text-ink-soft">
-              {locale === "fr"
-                ? "Apparaissez en haut des résultats de recherche pendant 7 jours."
-                : "Appear at the top of search results for 7 days."}
+              {tf("cdash.featureDesc", { days: FEATURED_LISTING_DAYS })}
             </p>
             <button className="btn-primary mt-3 w-full btn-sm">
-              {t("cdash.feature")} · 10 000 FCFA
+              {t("cdash.feature")} · {formatFCFA(FEATURED_LISTING_PRICE, locale)}
             </button>
           </div>
         </aside>

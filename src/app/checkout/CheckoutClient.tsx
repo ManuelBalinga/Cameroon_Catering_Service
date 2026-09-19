@@ -7,7 +7,13 @@ import { useI18n } from "@/context/I18nContext";
 import { getCaterer } from "@/data/caterers";
 import { eventTypeLabels, paymentLabels } from "@/lib/i18n";
 import { eventTypes } from "@/lib/options";
-import { formatFCFA, DEPOSIT_RATE, DEFAULT_COMMISSION } from "@/lib/format";
+import {
+  formatFCFA,
+  depositFor,
+  balanceAfterDeposit,
+  DEPOSIT_RATE,
+  DEFAULT_COMMISSION,
+} from "@/lib/format";
 import type { PaymentMethod, EventType } from "@/lib/types";
 import { Monogram } from "@/components/FoodArt";
 
@@ -19,7 +25,7 @@ const paymentOptions: { key: PaymentMethod; icon: string; hint: string }[] = [
 ];
 
 export function CheckoutClient() {
-  const { t, locale } = useI18n();
+  const { t, tf, locale } = useI18n();
   const params = useSearchParams();
   const caterer = getCaterer(params.get("caterer") ?? "");
   const pkg = caterer?.packages.find((p) => p.id === (params.get("package") ?? "pkg-100"));
@@ -35,8 +41,8 @@ export function CheckoutClient() {
 
   const guests = pkg?.guestCount ?? 50;
   const total = pkg ? pkg.pricePerGuest * pkg.guestCount : 0;
-  const deposit = Math.round((total * DEPOSIT_RATE) / 50) * 50;
-  const balance = total - deposit;
+  const deposit = depositFor(total);
+  const balance = balanceAfterDeposit(total);
 
   const canPay = useMemo(() => {
     if (!date) return false;
@@ -49,9 +55,7 @@ export function CheckoutClient() {
     return (
       <div className="container-page py-20 text-center">
         <p className="text-ink-soft">
-          {locale === "fr"
-            ? "Sélectionnez d'abord un traiteur et une formule."
-            : "Please select a caterer and package first."}
+          {t("checkout.selectFirst")}
         </p>
         <Link href="/browse" className="btn-primary mt-4 inline-flex">
           {t("cta.browseAll")}
@@ -157,25 +161,19 @@ export function CheckoutClient() {
                   inputMode="numeric"
                 />
                 <p className="mt-1.5 text-xs text-ink-faint">
-                  {locale === "fr"
-                    ? "Vous recevrez une demande de paiement sur votre téléphone."
-                    : "You will receive a payment prompt on your phone."}
+                  {t("checkout.momoPrompt")}
                 </p>
               </div>
             )}
             {method === "bank_transfer" && (
               <p className="mt-4 rounded-xl bg-brand-50 p-3 text-sm text-ink-soft">
-                {locale === "fr"
-                  ? "Les détails du virement seront affichés après confirmation."
-                  : "Bank transfer details will be shown after you confirm."}
+                {t("checkout.bankLater")}
               </p>
             )}
             {method === "cash" && (
               <p className="mt-4 rounded-xl bg-gold-100/60 p-3 text-sm text-gold-800">
                 ⚠️{" "}
-                {locale === "fr"
-                  ? "Le paiement en espèces nécessite l'approbation du traiteur et n'est pas recommandé pour sécuriser la date."
-                  : "Cash requires caterer approval and is not recommended to secure your date."}
+                {t("checkout.cashWarning")}
               </p>
             )}
           </section>
@@ -216,13 +214,9 @@ export function CheckoutClient() {
               <Row label={t("checkout.balance")} value={formatFCFA(balance, locale)} muted />
             </div>
             <div className="border-t border-brand-50 bg-brand-50/50 p-4 text-xs text-ink-faint">
-              {locale === "fr"
-                ? `La plateforme prélève une commission de ${Math.round(
-                    DEFAULT_COMMISSION * 100
-                  )}% au traiteur sur les réservations réussies.`
-                : `The platform charges the caterer a ${Math.round(
-                    DEFAULT_COMMISSION * 100
-                  )}% commission on successful bookings.`}
+              {tf("checkout.commissionNote", {
+                rate: Math.round(DEFAULT_COMMISSION * 100),
+              })}
             </div>
           </div>
         </aside>

@@ -5,8 +5,7 @@ import { useI18n } from "@/context/I18nContext";
 import { SectionHeading } from "@/components/SectionHeading";
 
 export default function AboutPage() {
-  const { locale } = useI18n();
-  const fr = locale === "fr";
+  const { t, locale } = useI18n();
 
   const values = [
     {
@@ -35,16 +34,12 @@ export default function AboutPage() {
     <div>
       <section className="bg-gradient-to-b from-brand-50/80 to-white py-16">
         <div className="container-page max-w-3xl text-center">
-          <span className="chip mx-auto mb-4 bg-white shadow-sm">🇨🇲 {fr ? "Notre histoire" : "Our story"}</span>
+          <span className="chip mx-auto mb-4 bg-white shadow-sm">🇨🇲 {t("about.eyebrow")}</span>
           <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">
-            {fr
-              ? "Rendre le traiteur simple et digne de confiance au Cameroun"
-              : "Making catering simple and trustworthy in Cameroon"}
+            {t("about.title")}
           </h1>
           <p className="mt-4 text-ink-soft">
-            {fr
-              ? "Organiser un événement au Cameroun signifie souvent appeler des dizaines de contacts, négocier à l'aveugle et espérer que le traiteur se présente. Nous changeons cela en réunissant traiteurs vérifiés, prix clairs et paiements Mobile Money sécurisés sur une seule plateforme."
-              : "Planning an event in Cameroon often means calling dozens of contacts, negotiating blind, and hoping the caterer shows up. We're changing that by bringing verified caterers, clear pricing and secure Mobile Money payments together in one platform."}
+            {t("about.body")}
           </p>
         </div>
       </section>
@@ -54,8 +49,8 @@ export default function AboutPage() {
           {values.map((v) => (
             <div key={v.icon} className="card p-6">
               <span className="text-3xl">{v.icon}</span>
-              <h3 className="mt-3 font-bold text-ink">{fr ? v.fr.t : v.en.t}</h3>
-              <p className="mt-1.5 text-sm text-ink-soft">{fr ? v.fr.d : v.en.d}</p>
+              <h3 className="mt-3 font-bold text-ink">{v[locale].t}</h3>
+              <p className="mt-1.5 text-sm text-ink-soft">{v[locale].d}</p>
             </div>
           ))}
         </div>
@@ -65,11 +60,9 @@ export default function AboutPage() {
         <div className="container-page">
           <SectionHeading
             center
-            title={fr ? "Comment nous gagnons de l'argent" : "How we make money"}
+            title={t("about.moneyTitle")}
             subtitle={
-              fr
-                ? "Un modèle transparent, aligné sur le succès des traiteurs."
-                : "A transparent model aligned with caterer success."
+              t("about.moneySub")
             }
           />
           <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -81,7 +74,7 @@ export default function AboutPage() {
             ].map((m) => (
               <div key={m.icon} className="rounded-2xl border border-brand-100 bg-white p-5">
                 <span className="text-2xl">{m.icon}</span>
-                <p className="mt-2 text-sm text-ink-soft">{fr ? m.fr : m.en}</p>
+                <p className="mt-2 text-sm text-ink-soft">{m[locale]}</p>
               </div>
             ))}
           </div>
@@ -90,14 +83,14 @@ export default function AboutPage() {
 
       <section className="container-page py-14 text-center">
         <h2 className="text-2xl font-bold text-ink">
-          {fr ? "Rejoignez le mouvement" : "Join the movement"}
+          {t("about.joinTitle")}
         </h2>
         <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
           <Link href="/quote" className="btn-primary">
-            {fr ? "Demander un devis" : "Request a quote"}
+            {t("about.joinQuote")}
           </Link>
           <Link href="/dashboard/caterer" className="btn-outline">
-            {fr ? "Devenir traiteur partenaire" : "Become a partner caterer"}
+            {t("about.joinCaterer")}
           </Link>
         </div>
       </section>

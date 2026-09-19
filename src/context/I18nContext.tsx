@@ -9,6 +9,12 @@ interface I18nContextValue {
   setLocale: (l: Locale) => void;
   toggleLocale: () => void;
   t: (key: TranslationKey) => string;
+  /**
+   * Translate a key whose text carries `{token}` placeholders, e.g.
+   * `tf("offers.responded", { count: 4 })`. Keeps interpolated strings in the
+   * dictionary instead of being rebuilt in each page.
+   */
+  tf: (key: TranslationKey, vars: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -44,8 +50,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [locale]
   );
 
+  const tf = useCallback(
+    (key: TranslationKey, vars: Record<string, string | number>) =>
+      Object.entries(vars).reduce<string>(
+        (text, [name, value]) => text.split(`{${name}}`).join(String(value)),
+        dictionary[locale][key] ?? key
+      ),
+    [locale]
+  );
+
   return (
-    <I18nContext.Provider value={{ locale, setLocale, toggleLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale, toggleLocale, t, tf }}>
       {children}
     </I18nContext.Provider>
   );

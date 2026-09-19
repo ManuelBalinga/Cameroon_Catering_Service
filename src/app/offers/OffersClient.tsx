@@ -18,8 +18,7 @@ import type { Cuisine, EventType } from "@/lib/types";
  * indicative total from the caterer's price range and the requested guest count.
  */
 export function OffersClient() {
-  const { t, locale } = useI18n();
-  const fr = locale === "fr";
+  const { t, tf, locale } = useI18n();
   const params = useSearchParams();
 
   const city = params.get("city") ?? "";
@@ -69,13 +68,11 @@ export function OffersClient() {
     <div className="container-page py-10">
       <div className="mb-2 flex items-center gap-2 text-sm text-brand-600">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs">✓</span>
-        {fr ? "Devis envoyé" : "Quote sent"}
+        {t("offers.quoteSent")}
       </div>
       <h1 className="text-2xl font-bold text-ink sm:text-3xl">{t("cta.compare")}</h1>
       <p className="mt-1 text-ink-soft">
-        {fr
-          ? `${offers.length} traiteurs ont répondu à votre demande`
-          : `${offers.length} caterers responded to your request`}
+        {tf("offers.responded", { count: offers.length })}
       </p>
 
       {/* Request summary chips */}
@@ -100,7 +97,7 @@ export function OffersClient() {
           >
             {i === 0 && (
               <span className="mb-3 inline-flex items-center gap-1 rounded-full bg-brand-500 px-2.5 py-0.5 text-[11px] font-bold text-white">
-                ★ {fr ? "Meilleure correspondance" : "Best match"}
+                ★ {t("offers.bestMatch")}
               </span>
             )}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -115,7 +112,7 @@ export function OffersClient() {
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-faint">
                     <Rating value={caterer.rating} count={caterer.reviewCount} />
                     <span>📍 {caterer.city}</span>
-                    <span>⚡ {fr ? "Répond en" : "Responds in"} ~{caterer.responseTimeHours}h</span>
+                    <span>⚡ {t("offers.respondsIn")} ~{caterer.responseTimeHours}h</span>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {caterer.cuisines.slice(0, 3).map((c) => (
@@ -135,7 +132,7 @@ export function OffersClient() {
                   {formatFCFA(total, locale)}
                 </p>
                 <p className="text-[11px] text-ink-faint">
-                  {fr ? "estimé pour" : "estimated for"} {guests} {t("caterer.guests")}
+                  {t("offers.estimatedFor")} {guests} {t("caterer.guests")}
                 </p>
                 <div className="mt-3 flex gap-2 sm:justify-end">
                   <Link href={`/caterers/${caterer.id}`} className="btn-outline btn-sm">
@@ -155,9 +152,7 @@ export function OffersClient() {
       </div>
 
       <div className="mt-8 rounded-2xl bg-brand-50/60 p-5 text-center text-sm text-ink-soft">
-        {fr
-          ? "Vous ne trouvez pas votre bonheur ? Ajustez votre recherche ou contactez-nous."
-          : "Not seeing the right fit? Adjust your search or contact us."}
+        {t("offers.noFit")}
         <div className="mt-3 flex flex-col justify-center gap-2 sm:flex-row">
           <Link href="/browse" className="btn-outline btn-sm">
             {t("cta.browseAll")}

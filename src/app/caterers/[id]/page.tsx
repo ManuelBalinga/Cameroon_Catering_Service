@@ -15,15 +15,13 @@ import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export default function CatererProfile({ params }: { params: { id: string } }) {
-  const { t, locale } = useI18n();
+  const { t, tf, locale } = useI18n();
   const caterer = getCaterer(params.id);
   if (!caterer) notFound();
 
   const reviews = reviewsFor(caterer.id);
   const waMessage =
-    locale === "fr"
-      ? `Bonjour ${caterer.businessName}, je vous ai trouvé sur Cameroon Catering et j'aimerais un devis.`
-      : `Hello ${caterer.businessName}, I found you on Cameroon Catering and would like a quote.`;
+    tf("caterer.whatsappIntro", { business: caterer.businessName });
 
   return (
     <div>
