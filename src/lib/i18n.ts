@@ -382,6 +382,25 @@ export const dictionary = {
     "caterer.whatsappIntro": "Hello {business}, I found you on Cameroon Catering and would like a quote.",
     "checkout.commissionNote": "The platform charges the caterer a {rate}% commission on successful bookings.",
     "offers.responded": "{count} caterers responded to your request",
+
+    // Admin approval decisions
+    "admin.decisionsThisSession": "Decisions this session",
+    "admin.wasApproved": "approved",
+    "admin.wasRejected": "rejected",
+    "admin.undo": "Undo",
+    "admin.notPersisted": "Demo — decisions are not saved and reset on refresh.",
+    "admin.rejectedCaterers": "Rejected",
+
+    // Upsell request states
+    "cdash.upgradeRequested": "Premium requested",
+    "cdash.featureRequested": "Boost requested",
+    "cdash.billingPending": "Billing is not live yet — our team will contact you.",
+
+    // Error boundary
+    "error.title": "Something went wrong",
+    "error.body": "We could not load this page. Your bookings and quotes are safe — try again, or head back to the homepage.",
+    "error.retry": "Try again",
+    "error.contact": "Contact support",
   },
 
   fr: {
@@ -758,6 +777,25 @@ export const dictionary = {
     "caterer.whatsappIntro": "Bonjour {business}, je vous ai trouvé sur Cameroon Catering et j'aimerais un devis.",
     "checkout.commissionNote": "La plateforme prélève une commission de {rate}% au traiteur sur les réservations réussies.",
     "offers.responded": "{count} traiteurs ont répondu à votre demande",
+
+    // Admin approval decisions
+    "admin.decisionsThisSession": "Décisions de cette session",
+    "admin.wasApproved": "approuvé",
+    "admin.wasRejected": "rejeté",
+    "admin.undo": "Annuler",
+    "admin.notPersisted": "Démo — les décisions ne sont pas enregistrées et disparaissent au rechargement.",
+    "admin.rejectedCaterers": "Rejetés",
+
+    // Upsell request states
+    "cdash.upgradeRequested": "Premium demandé",
+    "cdash.featureRequested": "Boost demandé",
+    "cdash.billingPending": "La facturation n'est pas encore active — notre équipe vous contactera.",
+
+    // Error boundary
+    "error.title": "Une erreur est survenue",
+    "error.body": "Nous n'avons pas pu charger cette page. Vos réservations et devis sont intacts — réessayez, ou revenez à l'accueil.",
+    "error.retry": "Réessayer",
+    "error.contact": "Contacter le support",
   },
 } as const;
 

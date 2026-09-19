@@ -14,17 +14,33 @@ import { formatFCFA, formatFCFACompact, formatDate } from "@/lib/format";
 export default function AdminDashboard() {
   const { t, locale } = useI18n();
 
-  const approved = caterers.filter((c) => c.verified);
-  const initialPending = caterers.filter((c) => !c.verified);
-  const [pending, setPending] = useState(initialPending);
+  /**
+   * Approval decisions are held in component state until there is a database to
+   * write them to. Approving and rejecting are separate outcomes — an approved
+   * caterer becomes verified and appears in search; a rejected one does not —
+   * so they are recorded separately rather than both just clearing the row.
+   */
+  const [decisions, setDecisions] = useState<Record<string, "approved" | "rejected">>({});
+
+  const approved = caterers.filter((c) => c.verified || decisions[c.id] === "approved");
+  const pending = caterers.filter((c) => !c.verified && !decisions[c.id]);
+  const rejected = caterers.filter((c) => decisions[c.id] === "rejected");
   const featured = caterers.filter((c) => c.featured);
   const openQuotes = quoteRequests.filter((q) => q.status === "quote_requested");
 
   const gmv = totalGmv();
   const commission = totalCommission();
 
-  function handle(id: string) {
-    setPending((p) => p.filter((c) => c.id !== id));
+  function decide(id: string, outcome: "approved" | "rejected") {
+    setDecisions((d) => ({ ...d, [id]: outcome }));
+  }
+
+  function undo(id: string) {
+    setDecisions((d) => {
+      const next = { ...d };
+      delete next[id];
+      return next;
+    });
   }
 
   return (
@@ -49,6 +65,12 @@ export default function AdminDashboard() {
         <StatCard label={t("admin.pendingCaterers")} value={`${pending.length}`} icon="⏳" accent="ink" />
         <StatCard label={t("admin.pendingQuotes")} value={`${openQuotes.length}`} icon="📝" accent="ink" />
         <StatCard label={t("admin.disputes")} value="1" icon="⚠️" accent="ink" />
+        <StatCard
+          label={t("admin.rejectedCaterers")}
+          value={`${rejected.length}`}
+          icon="🚫"
+          accent="ink"
+        />
         <StatCard label={t("admin.featured")} value={`${featured.length}`} icon="⭐" accent="ink" />
       </div>
 
@@ -72,15 +94,50 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => handle(c.id)} className="btn-primary btn-sm">
+                  <button
+                    onClick={() => decide(c.id, "approved")}
+                    className="btn-primary btn-sm"
+                  >
                     {t("admin.approve")}
                   </button>
-                  <button onClick={() => handle(c.id)} className="btn-ghost btn-sm text-red-500">
+                  <button
+                    onClick={() => decide(c.id, "rejected")}
+                    className="btn-ghost btn-sm text-red-500"
+                  >
                     {t("admin.reject")}
                   </button>
                 </div>
               </div>
             ))}
+
+            {Object.keys(decisions).length > 0 && (
+              <div className="rounded-xl bg-brand-50/60 p-3 text-xs text-ink-soft">
+                <p className="font-semibold text-ink">{t("admin.decisionsThisSession")}</p>
+                <ul className="mt-2 space-y-1.5">
+                  {caterers
+                    .filter((c) => decisions[c.id])
+                    .map((c) => (
+                      <li key={c.id} className="flex items-center justify-between gap-2">
+                        <span className="truncate">
+                          {decisions[c.id] === "approved" ? "✅" : "🚫"} {c.businessName} ·{" "}
+                          {t(
+                            decisions[c.id] === "approved"
+                              ? "admin.wasApproved"
+                              : "admin.wasRejected"
+                          )}
+                        </span>
+                        <button
+                          onClick={() => undo(c.id)}
+                          className="shrink-0 font-semibold text-brand-600 hover:underline"
+                        >
+                          {t("admin.undo")}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+                <p className="mt-2.5 text-ink-faint">{t("admin.notPersisted")}</p>
+              </div>
+            )}
           </div>
         </section>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useI18n } from "@/context/I18nContext";
 import { StatCard, StatusBadge } from "@/components/StatCard";
 import { Monogram } from "@/components/FoodArt";
@@ -22,6 +23,16 @@ const DEMO_CATERER = "mamie-nkeng";
 
 export default function CatererDashboard() {
   const { t, tf, locale } = useI18n();
+
+  /**
+   * Both upsells put the caterer into a "requested" state rather than taking
+   * money. There is no billing yet, and a button that silently does nothing is
+   * worse than one that says what it is waiting for.
+   */
+  const [upsell, setUpsell] = useState<{ premium: boolean; featured: boolean }>({
+    premium: false,
+    featured: false,
+  });
   const caterer = getCaterer(DEMO_CATERER)!;
   const bookings = catererBookings(DEMO_CATERER);
   const quotes = catererQuotes(DEMO_CATERER);
@@ -167,10 +178,32 @@ export default function CatererDashboard() {
               </li>
               <li>✓ {t("cdash.premiumBadge")}</li>
             </ul>
-            <button className="btn-gold mt-4 w-full">{t("cdash.upgrade")}</button>
-            <p className="mt-2 text-center text-xs text-white/50">
-              {formatFCFA(PREMIUM_MONTHLY_PRICE, locale)} / {t("cdash.perMonth")}
-            </p>
+            {upsell.premium ? (
+              <div className="mt-4 rounded-xl bg-white/10 p-3 text-center">
+                <p className="text-sm font-semibold text-gold-300">
+                  ⏳ {t("cdash.upgradeRequested")}
+                </p>
+                <p className="mt-1 text-xs text-white/60">{t("cdash.billingPending")}</p>
+                <button
+                  onClick={() => setUpsell((u) => ({ ...u, premium: false }))}
+                  className="mt-2 text-xs font-semibold text-white/70 hover:underline"
+                >
+                  {t("admin.undo")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setUpsell((u) => ({ ...u, premium: true }))}
+                  className="btn-gold mt-4 w-full"
+                >
+                  {t("cdash.upgrade")}
+                </button>
+                <p className="mt-2 text-center text-xs text-white/50">
+                  {formatFCFA(PREMIUM_MONTHLY_PRICE, locale)} / {t("cdash.perMonth")}
+                </p>
+              </>
+            )}
           </div>
 
           <div className="card p-5">
@@ -178,9 +211,27 @@ export default function CatererDashboard() {
             <p className="mt-2 text-sm text-ink-soft">
               {tf("cdash.featureDesc", { days: FEATURED_LISTING_DAYS })}
             </p>
-            <button className="btn-primary mt-3 w-full btn-sm">
-              {t("cdash.feature")} · {formatFCFA(FEATURED_LISTING_PRICE, locale)}
-            </button>
+            {upsell.featured ? (
+              <div className="mt-3 rounded-xl bg-brand-50 p-3 text-center">
+                <p className="text-sm font-semibold text-brand-700">
+                  ⏳ {t("cdash.featureRequested")}
+                </p>
+                <p className="mt-1 text-xs text-ink-faint">{t("cdash.billingPending")}</p>
+                <button
+                  onClick={() => setUpsell((u) => ({ ...u, featured: false }))}
+                  className="mt-2 text-xs font-semibold text-brand-600 hover:underline"
+                >
+                  {t("admin.undo")}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setUpsell((u) => ({ ...u, featured: true }))}
+                className="btn-primary mt-3 w-full btn-sm"
+              >
+                {t("cdash.feature")} · {formatFCFA(FEATURED_LISTING_PRICE, locale)}
+              </button>
+            )}
           </div>
         </aside>
       </div>
